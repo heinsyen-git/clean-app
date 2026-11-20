@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kebersihan Kantor</title>
+<meta name="theme-color" content="#0E5A5F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8EEED; --surface:#FFFFFF; --surface-2:#F3F7F6; --ink:#14232D; --ink-2:#4B5C66; --line:#CBD7D5;
+  --brand:#0E5A5F; --brand-2:#0A4448; --on-brand:#FFFFFF; --mop:#F2C318; --on-mop:#2A2100;
+  --ok:#22704A; --ok-bg:#D9EFE1; --wait:#7E5B00; --wait-bg:#FAEDBF; --bad:#A93623; --bad-bg:#F7DCD5; --idle:#56656E; --idle-bg:#E1E8E7;
+  --shadow:0 1px 0 rgba(20,35,45,.06), 0 8px 24px -14px rgba(20,35,45,.35);
+  --paper:#FFFFFF; --paper-ink:#1A1A1A;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E181B; --surface:#16242A; --surface-2:#1C2D33; --ink:#E6EEEE; --ink-2:#9DB0B4; --line:#2B3F45;
+    --brand:#2C8C90; --brand-2:#1F6E72; --on-brand:#FFFFFF; --mop:#F2C318; --on-mop:#2A2100;
+    --ok:#7FD3A2; --ok-bg:#173A29; --wait:#F2D06B; --wait-bg:#3A3014; --bad:#F29A86; --bad-bg:#43211A; --idle:#A9B7BC; --idle-bg:#22343A;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E181B; --surface:#16242A; --surface-2:#1C2D33; --ink:#E6EEEE; --ink-2:#9DB0B4; --line:#2B3F45;
+  --brand:#2C8C90; --brand-2:#1F6E72; --on-brand:#FFFFFF; --mop:#F2C318; --on-mop:#2A2100;
+  --ok:#7FD3A2; --ok-bg:#173A29; --wait:#F2D06B; --wait-bg:#3A3014; --bad:#F29A86; --bad-bg:#43211A; --idle:#A9B7BC; --idle-bg:#22343A;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque",Manrope,system-ui,sans-serif;line-height:1.15;margin:0}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--mop);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;border-radius:10px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.primary:hover{background:var(--brand-2)}
+.btn.mop{background:var(--mop);border-color:var(--mop);color:var(--on-mop)}
+.btn.ok{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
+.btn.bad{background:var(--bad-bg);border-color:transparent;color:var(--bad)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* fields */
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label,.field .lbl{font-weight:600;font-size:13.5px}
+.field small{color:var(--ink-2);font-size:12.5px}
+input[type=text],input[type=password],input[type=date],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:84px}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 25%,transparent)}
+
+/* auth screens */
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.auth-card{width:100%;max-width:420px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.auth-top{background:var(--brand);color:var(--on-brand);padding:26px 26px 22px;position:relative}
+.auth-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(-45deg,var(--mop) 0 14px,var(--brand-2) 14px 28px)}
+.auth-top h1{font-size:28px;font-weight:800}
+.auth-top p{margin:6px 0 0;opacity:.85}
+.auth-body{padding:24px 26px 26px}
+.auth-body .btn{width:100%;padding:12px}
+.hint{color:var(--ink-2);font-size:13px;margin:14px 0 0;text-align:center}
+
+/* header */
+.top{background:var(--brand);color:var(--on-brand);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--brand)}
+.top-in{display:flex;align-items:center;gap:14px;padding-top:14px;padding-bottom:10px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--mop);color:var(--on-mop);display:grid;place-items:center;flex:none}
+.logo svg{width:24px;height:24px}
+.b-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:19px;line-height:1.1}
+.b-sub{font-size:12.5px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who{text-align:right;line-height:1.2}
+.who-name{font-weight:700;font-size:14px}
+.who-role{font-size:12px;opacity:.8}
+.top .btn.ghost{color:var(--on-brand)}
+.top .btn.ghost:hover{background:rgba(255,255,255,.12)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;color:var(--on-brand);opacity:.75;padding:10px 14px 12px;font-weight:600;cursor:pointer;border-bottom:4px solid transparent;white-space:nowrap}
+.tab:hover{opacity:1}
+.tab.on{opacity:1;border-bottom-color:var(--mop)}
+.stripe{height:6px;background:repeating-linear-gradient(-45deg,var(--mop) 0 14px,var(--brand-2) 14px 28px)}
+
+main{padding:22px 0 60px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:18px}
+.toolbar .field{margin:0;min-width:160px}
+.toolbar .grow{flex:1}
+.banner{background:var(--wait-bg);color:var(--wait);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-weight:500}
+
+/* hero progress */
+.hero{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:22px;margin-bottom:20px;display:grid;grid-template-columns:auto 1fr;gap:6px 24px;align-items:center}
+.hero-num{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:64px;line-height:.9;letter-spacing:-.02em}
+.hero-num span{color:var(--ink-2);font-size:32px;font-weight:600}
+.hero-txt h2{font-size:20px}
+.hero-txt p{margin:4px 0 0;color:var(--ink-2)}
+.bucket{grid-column:1/-1;height:14px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;margin-top:12px}
+.bucket i{display:block;height:100%;background:var(--mop);border-radius:99px;transition:width .5s ease}
+
+/* list cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:8px}
+.card h3{font-size:17px}
+.card .loc{color:var(--ink-2);font-size:13px;margin:0}
+.card .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:6px}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.wait{background:var(--wait-bg);color:var(--wait)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.idle{background:var(--idle-bg);color:var(--idle)}
+.note{background:var(--surface-2);border-left:4px solid var(--line);padding:8px 10px;border-radius:6px;font-size:13.5px;margin:0}
+.note.bad{border-left-color:var(--bad)}
+.muted{color:var(--ink-2)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--surface);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.stat b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:32px;line-height:1}
+.stat span{color:var(--ink-2);font-size:13px}
+.stat.wait b{color:var(--wait)} .stat.bad b{color:var(--bad)} .stat.ok b{color:var(--ok)}
+.sec-title{font-size:18px;margin:26px 0 12px}
+
+/* report cards */
+.reps{display:grid;gap:14px}
+.rep{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(220px,300px) 1fr;overflow:hidden}
+.rep-photos{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line)}
+.ph{position:relative;border:0;padding:0;margin:0;background:var(--surface-2);cursor:zoom-in;aspect-ratio:3/4;overflow:hidden;display:block;width:100%}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph span{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11.5px;padding:2px 7px;border-radius:6px;font-weight:600}
+.ph.none{cursor:default;display:grid;place-items:center;color:var(--ink-2);font-size:12.5px;text-align:center;padding:8px}
+.ph.none span{position:static;background:none;color:var(--ink-2)}
+.rep-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.rep-head{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.rep-head h3{font-size:17px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--ink-2);font-size:13px;margin:0}
+details{font-size:13.5px}
+summary{cursor:pointer;font-weight:600}
+.checks{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:3px}
+.checks li{display:flex;gap:8px;align-items:start}
+.checks li::before{content:"";flex:none;width:16px;height:16px;margin-top:2px;border-radius:4px;border:2px solid var(--line)}
+.checks li.y::before{background:var(--ok);border-color:var(--ok);box-shadow:inset 0 0 0 2px var(--surface)}
+.checks li.n{color:var(--ink-2);text-decoration:line-through}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+@media (max-width:640px){
+  .rep{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .hero-num{font-size:52px}
+  .who{display:none}
+}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border-radius:14px;box-shadow:var(--shadow)}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.tbl th,.tbl td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl th{font-size:12.5px;color:var(--ink-2);font-weight:700;background:var(--surface-2)}
+.tbl tr:last-child td{border-bottom:0}
+
+.empty{background:var(--surface);border:2px dashed var(--line);border-radius:16px;padding:34px 20px;text-align:center}
+.empty h3{font-size:19px;margin-bottom:6px}
+.empty p{color:var(--ink-2);margin:0 0 16px}
+.missing{display:flex;flex-wrap:wrap;gap:8px}
+.missing span{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:13.5px}
+
+/* modal */
+#modal{position:fixed;inset:0;z-index:50;display:none}
+#modal.open{display:block}
+.backdrop{position:absolute;inset:0;background:rgba(8,16,20,.55)}
+.sheet{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100vw - 24px));max-height:calc(100% - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;background:var(--surface);border-radius:18px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.sheet.wide{width:min(900px,calc(100vw - 24px))}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 20px 10px;position:sticky;top:0;background:var(--surface);z-index:1}
+.sheet-h h2{font-size:21px}
+.sheet-b{padding:4px 20px 20px}
+.sheet-f{display:flex;gap:10px;justify-content:flex-end;padding:12px 20px 18px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--surface)}
+.checkrow{display:flex;gap:10px;align-items:start;padding:9px 10px;border-radius:10px;cursor:pointer}
+.checkrow:hover{background:var(--surface-2)}
+.checkrow input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--brand);flex:none}
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pick{display:block;border:2px dashed var(--line);border-radius:14px;overflow:hidden;cursor:pointer;background:var(--surface-2);text-align:center}
+.pick:hover{border-color:var(--brand)}
+.pick .pv{aspect-ratio:3/4;display:grid;place-items:center;color:var(--ink-2);font-size:13px;padding:8px}
+.pick .pv img{width:100%;height:100%;object-fit:cover}
+.pick .pv svg{width:34px;height:34px;opacity:.6}
+.pick b{display:block;padding:8px;font-size:13.5px;border-top:1px solid var(--line);background:var(--surface)}
+.pick.has .pv{padding:0}
+.zoom img{width:100%;border-radius:10px;display:block}
+.ro-check{display:grid;gap:4px}
+.toolbar:empty{display:none}
+.toolbar input,.toolbar select{height:44px}
+.rep-photos{background:var(--surface-2);gap:0}
+.ph + .ph{border-left:2px solid var(--surface)}
+.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+.cam,.gal,.shot-acts .btn{position:relative}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;display:grid;gap:8px;width:min(420px,calc(100vw - 24px))}
+.tst{background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;box-shadow:var(--shadow);font-weight:600;font-size:14px}
+.tst.bad{background:var(--bad);color:#fff}
+
+/* print preview */
+#printRoot{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto}
+#printRoot[hidden]{display:none}
+.pr-bar{position:sticky;top:0;z-index:2;background:var(--surface);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pr-bar h2{font-size:18px;flex:1;min-width:180px}
+.pr-page{max-width:860px;margin:22px auto 60px;background:var(--paper);color:var(--paper-ink);padding:36px 40px;box-shadow:var(--shadow);border-radius:4px}
+@media (max-width:640px){.pr-page{padding:20px 16px;margin:12px}}
+.loading{display:grid;place-items:center;min-height:60vh;color:var(--ink-2)}
+.spin{width:34px;height:34px;border:4px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation-duration:3s}.bucket i{transition:none}}
+
+/* ===== Desktop: admin / manager ===== */
+.desk{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+.side{background:var(--brand);color:var(--on-brand);position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;padding:22px 14px 18px;gap:22px;z-index:20}
+.side .brand{flex:none;padding:0 6px}
+.side .mob-acts{display:none;gap:4px}
+.snav{display:grid;gap:4px}
+.snav .tab{display:flex;align-items:center;gap:12px;border:0;border-radius:10px;padding:11px 12px;text-align:left;width:100%;font-size:15px}
+.snav .tab svg{width:20px;height:20px;flex:none}
+.snav .tab:hover{background:rgba(255,255,255,.08)}
+.snav .tab.on{background:rgba(255,255,255,.15);box-shadow:inset 4px 0 0 var(--mop)}
+.side-foot{margin-top:auto;border-top:1px solid rgba(255,255,255,.2);padding:14px 6px 0;display:grid;gap:10px}
+.side-foot .who{text-align:left;display:block}
+.side-foot .row{display:flex;gap:6px}
+.side .btn.ghost{color:var(--on-brand)}
+.side .btn.ghost:hover{background:rgba(255,255,255,.12)}
+.desk-main{min-width:0}
+.desk-main main{padding:30px 34px 60px}
+.desk-main .wrap{max-width:1320px;padding:0}
+.page-title{font-size:30px;font-weight:800;margin:0 0 4px}
+.page-date{color:var(--ink-2);margin:0 0 18px}
+@media (min-width:1300px){.desk .reps{grid-template-columns:1fr 1fr}}
+@media (max-width:899px){
+  .desk{grid-template-columns:minmax(0,1fr)}
+  .side{min-width:0}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .side{height:auto;padding:12px 12px 0;gap:8px}
+  .side .brand{padding:0}
+  .side .mob-acts{display:flex}
+  .snav{display:flex;overflow-x:auto;scrollbar-width:none}
+  .snav::-webkit-scrollbar{display:none}
+  .snav .tab{width:auto;white-space:nowrap;border-radius:8px 8px 0 0;padding:9px 12px 11px}
+  .snav .tab.on{box-shadow:inset 0 -4px 0 var(--mop);background:transparent}
+  .side-foot{display:none}
+  .desk-main main{padding:18px 14px 60px}
+  .page-title{font-size:24px}
+}
+
+/* ===== Mobile app: staff ===== */
+.mob{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.mob-top{background:var(--brand);color:var(--on-brand);position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding:12px 16px 14px;display:flex;align-items:center;gap:12px}
+.mob-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:repeating-linear-gradient(-45deg,var(--mop) 0 12px,var(--brand-2) 12px 24px)}
+.mob-top .who{display:block}
+.mob main{padding:18px 14px 24px}
+.mob .wrap{padding:0}
+.mob .grid{grid-template-columns:1fr;gap:12px}
+.mob .hero{grid-template-columns:auto 1fr;padding:18px}
+.mob .hero-num{font-size:54px}
+.mob .toolbar .field{flex:1 1 140px}
+.mob .toolbar .grow{display:none}
+.mob .toolbar .btn{flex:1 1 100%;padding:13px}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -6px 20px -14px rgba(0,0,0,.4)}
+.bnav-in{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:560px}
+.bnav .tab{color:var(--ink-2);opacity:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;font-size:12.5px;border:0;border-top:3px solid transparent;background:none;cursor:pointer;font-weight:600}
+.bnav .tab svg{width:26px;height:26px}
+.bnav .tab.on{color:var(--brand);border-top-color:var(--mop)}
+.task{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:16px;display:grid;gap:10px}
+.task-h{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.task h3{font-size:18px}
+.task .btn{width:100%;padding:14px;font-size:16px;border-radius:12px}
+.task .btn svg{width:22px;height:22px}
+.prof{display:flex;align-items:center;gap:14px}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--mop);color:var(--on-mop);display:grid;place-items:center;font:800 22px "Bricolage Grotesque",sans-serif;flex:none}
+.stack{display:grid;gap:10px;margin-top:14px}
+.stack .btn{justify-content:flex-start;padding:15px 16px;font-size:16px;border-radius:12px}
+
+/* ===== Work form: steps + camera ===== */
+.step{display:grid;grid-template-columns:34px 1fr;gap:12px;margin-bottom:22px}
+.step-n{width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:2px solid var(--brand);color:var(--brand);display:grid;place-items:center;font-weight:800}
+.step-n.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.step h3{font-size:17px;margin:5px 0 10px}
+.cam{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:130px;border:2px dashed var(--brand);border-radius:16px;background:color-mix(in srgb,var(--brand) 9%,var(--surface));color:var(--brand);font-weight:800;font-size:16px;cursor:pointer;padding:18px;text-align:center}
+.cam:hover{background:color-mix(in srgb,var(--brand) 15%,var(--surface))}
+.cam svg{width:42px;height:42px}
+.cam small{font-weight:600;color:var(--ink-2);font-size:13px}
+.cam:focus-within{outline:3px solid var(--mop);outline-offset:2px}
+.gal{display:block;text-align:center;margin-top:6px;font-size:14px;color:var(--brand);font-weight:700;cursor:pointer;padding:10px;text-decoration:underline;text-underline-offset:3px}
+.shot{position:relative;border-radius:16px;overflow:hidden;background:var(--surface-2)}
+.shot img{width:100%;max-height:320px;object-fit:cover;display:block}
+.shot-ok{position:absolute;left:10px;top:10px;background:var(--ok);color:#fff;font-weight:700;font-size:13px;padding:4px 10px;border-radius:99px}
+.shot-acts{display:flex;gap:8px;margin-top:8px}
+.shot-acts .btn{flex:1}
+/* bigger targets on touch devices / phones */
+.touch .cam{min-height:220px;font-size:20px;border-width:3px;border-radius:20px}
+.touch .cam svg{width:76px;height:76px}
+.touch .cam small{font-size:14.5px}
+.touch .shot img{max-height:46vh}
+.touch .shot-acts .btn{padding:14px;font-size:15.5px}
+.touch .checkrow{padding:14px 12px;font-size:16px;border:1px solid var(--line);margin-bottom:8px;border-radius:12px;background:var(--surface)}
+.touch .checkrow input{width:26px;height:26px}
+.touch .sheet-f .btn{flex:1;padding:15px;font-size:16px;border-radius:12px}
+.touch textarea{font-size:16px}
+@media (max-width:700px){
+  .sheet,.sheet.wide{left:0;top:0;transform:none;width:100%;height:100%;max-height:none;border-radius:0}
+  .sheet-h{padding-top:calc(14px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);padding-bottom:12px}
+  .sheet-b{padding-top:16px}
+  .sheet-f{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+}
+
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff}
+  body::before{display:none}
+  body > :not(#printRoot){display:none!important}
+  #printRoot{position:static;overflow:visible;background:#fff}
+  .pr-bar{display:none}
+  .pr-page{box-shadow:none;margin:0;padding:0;max-width:none}
+}
+</style>
+<style id="rptStyle"></style>
+</head>
+<body>
+<div id="app"><div class="loading"><div><div class="spin"></div>Memuat aplikasi…</div></div></div>
+<div id="modal" aria-hidden="true"></div>
+<div id="printRoot" hidden></div>
+<div id="toast" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+/* ---------- report stylesheet (shared by preview and download) ---------- */
+const RPT_CSS = `
+.rpt{font:12.5px/1.45 Manrope,Arial,sans-serif;color:#1a1a1a}
+.rpt h1{font:800 22px/1.15 "Bricolage Grotesque",Arial,sans-serif;margin:0}
+.rpt h2{font:700 15px/1.2 "Bricolage Grotesque",Arial,sans-serif;margin:22px 0 8px}
+.rpt-h{display:flex;justify-content:space-between;gap:20px;border-bottom:3px solid #0E5A5F;padding-bottom:12px;margin-bottom:14px;flex-wrap:wrap}
+.rpt-h p{margin:3px 0 0;color:#444}
+.rpt-meta{display:grid;grid-template-columns:auto auto;gap:2px 12px;font-size:12px}
+.rpt-meta b{color:#555;font-weight:600}
+.rpt-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+.rpt-sum div{border:1px solid #ccc;border-radius:6px;padding:8px 10px}
+.rpt-sum b{display:block;font:800 20px/1 "Bricolage Grotesque",Arial,sans-serif}
+.rpt-sum span{font-size:11px;color:#555}
+.rpt table{width:100%;border-collapse:collapse;font-size:11.5px}
+.rpt th,.rpt td{border:1px solid #bbb;padding:5px 7px;text-align:left;vertical-align:top}
+.rpt th{background:#eef3f2;font-weight:700}
+.rpt .st-ok{color:#1d6a43;font-weight:700}.rpt .st-wait{color:#7a5800;font-weight:700}.rpt .st-bad{color:#a33421;font-weight:700}
+.rpt ul.miss{margin:0;padding-left:18px}
+.rpt-photos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rpt-photos figure{margin:0;border:1px solid #ccc;border-radius:6px;padding:6px;break-inside:avoid;page-break-inside:avoid}
+.rpt-photos .pair{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.rpt-photos .pair div{aspect-ratio:3/4;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:10px;color:#777;overflow:hidden}
+.rpt-photos img{width:100%;height:100%;object-fit:cover;display:block}
+.rpt-photos figcaption{font-size:11px;margin-top:5px}
+.rpt-photos figcaption b{display:block;font-size:12px}
+.rpt-sign{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:34px;text-align:center;break-inside:avoid;page-break-inside:avoid}
+.rpt-sign .ln{border-top:1px solid #333;margin-top:64px;padding-top:4px;font-weight:700}
+.rpt-foot{margin-top:18px;font-size:10.5px;color:#777}
+@media (max-width:600px){.rpt-sum{grid-template-columns:1fr 1fr}.rpt-photos{grid-template-columns:1fr}}
+`;
+document.getElementById('rptStyle').textContent = RPT_CSS;
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const dstr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => dstr(new Date());
+const fmtDate = ds => { const [y,m,d] = ds.split('-').map(Number); return new Date(y, m-1, d).toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}); };
+const fmtTime = iso => iso ? new Date(iso).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '–';
+const fmtStamp = d => d.toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+const STATUS = { menunggu:['Menunggu cek','wait'], disetujui:['Disetujui','ok'], revisi:['Perlu revisi','bad'], belum:['Belum dikerjakan','idle'] };
+const chip = st => `<span class="chip ${STATUS[st][1]}">${STATUS[st][0]}</span>`;
+const imgSrc = ref => !ref ? '' : (ref.startsWith('data:') ? ref : '/_blob/' + ref);
+const ROLE = { manager:'Manager', staff:'Petugas kebersihan' };
+const ICON = {
+  logo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/><path d="M5 16l.6 1.4L7 18l-1.4.6L5 20l-.6-1.4L3 18l1.4-.6z"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg>',
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
+  map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 10h8v11M11 14h10"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17M11 6h9M11 12h9M11 18h9"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>'
+};
+function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { return null; } }
+function toast(msg, kind) {
+  const el = document.createElement('div'); el.className = 'tst ' + (kind || ''); el.textContent = msg;
+  $('#toast').appendChild(el); setTimeout(() => el.remove(), kind === 'bad' ? 5200 : 3200);
+}
+function errMsg(e) {
+  if (!e) return 'Terjadi kesalahan.';
+  if (e.code === 'permission-denied') return 'Akses database ditolak. Periksa Rules Firestore (lihat PANDUAN langkah 2).';
+  if (e.code === 'unavailable') return 'Tidak ada koneksi internet. Coba lagi saat sinyal tersedia.';
+  if (e.code === 'invalid_argument') return 'Penyimpanan ditolak. Akun claude.ai Anda mungkin hanya punya akses lihat.';
+  if (e.code === 'quota_exceeded') return 'Kapasitas penyimpanan penuh. Minta manager menghapus data lama.';
+  if (e.code === 'too_large') return 'Foto terlalu besar. Coba ambil ulang foto.';
+  if (e.code === 'rate_limited' || e.code === 'resource_exhausted') return 'Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.';
+  return e.message || String(e);
+}
+async function hashPw(username, pw) {
+  const txt = 'kbr-v1:' + username + ':' + pw;
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    let h = 5381; for (const c of txt) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'x' + (h >>> 0).toString(16);
+  }
+}
+const TOUCH = matchMedia('(pointer: coarse), (max-width: 700px)');
+const syncTouch = () => document.documentElement.classList.toggle('touch', TOUCH.matches);
+syncTouch(); try { TOUCH.addEventListener('change', syncTouch); } catch (e) {}
+/* ---------- Firebase + PWA ---------- */
+const SEED = {"settings": {"officeName": "Woori Consulting", "address": ""}, "accounts": {"heri": {"active": true, "createdAt": "2026-11-20T00:00:00.000Z", "name": "Heri (OB)", "pass": "b0968611a8978a3b84894f6231e23800e99411414d4f8f0f4bb9c74503595f64", "role": "staff"}, "itadmin": {"active": true, "createdAt": "2026-11-15T03:22:25.767Z", "name": "admin", "pass": "d4e7a47f5061ca635abd07c8ce81e6aa561eca27c5ad8dc937e83d624fd294c5", "role": "manager"}, "windi": {"active": true, "createdAt": "2026-11-15T03:32:45.805Z", "name": "Windi (OG)", "pass": "f6afb7b9b7f76beda9cc143a0716394e1ad458926f4938922fc48eaa6bcab801", "role": "staff"}}, "areas": {"0vqdc7cxgk90o6u1ug40": {"active": true, "assignees": ["heri"], "items": ["Cuci peralatan masak dan makan", "Lap meja kerja dan kompor", "Pel lantai dapur", "Buang sampah dapur"], "location": "Café Lantai 1", "name": "Kitchen Café", "order": 1795168084895}, "1bnm9s1dytzeld2kf9tn": {"active": true, "assignees": ["heri"], "items": ["Sikat kloset dan urinoir", "Bersihkan wastafel dan cermin", "Pel lantai lalu keringkan", "Isi ulang sabun dan tisu", "Semprot pengharum ruangan", "Kosongkan tempat sampah"], "location": "Café Lantai 1", "name": "Toilet Café", "order": 1795168084897}, "225od9j1b02updfzoci6": {"active": true, "assignees": ["windi"], "items": ["Lap meja dan kursi", "Rapikan posisi kursi", "Bersihkan papan tulis dan layar", "Sapu atau sedot debu lantai", "Kosongkan tempat sampah"], "location": "Lantai 3", "name": "Ruang Meeting Lantai 3", "order": 1795168084888.1}, "280ijvhg8svopppmeud9": {"active": true, "assignees": ["windi"], "items": ["Sapu dan pel lantai", "Lap meja kerja dan kursi", "Lap gagang pintu dan sakelar", "Bersihkan kaca dan jendela", "Kosongkan tempat sampah"], "location": "Lantai 3", "name": "Area Kerja Lantai 3", "order": 1795168084888}, "58htje0aocp50mq05596": {"active": true, "assignees": ["windi"], "items": ["Lap meja dan kursi", "Rapikan posisi kursi", "Bersihkan papan tulis dan layar", "Sapu atau sedot debu lantai", "Kosongkan tempat sampah"], "location": "Lantai 2", "name": "Ruang Meeting Lantai 2", "order": 1795168084887}, "5t6yqx0lnne8hihpjgm4": {"active": true, "assignees": ["windi"], "items": ["Sapu dan pel lantai", "Lap meja kerja dan kursi", "Lap gagang pintu dan sakelar", "Bersihkan kaca dan jendela", "Kosongkan tempat sampah"], "location": "Lantai 2", "name": "Area Kerja Lantai 2", "order": 1795168084886}, "akxda6etitghmd7s0x7d": {"active": true, "assignees": ["heri"], "items": ["Sikat kloset dan urinoir", "Bersihkan wastafel dan cermin", "Pel lantai lalu keringkan", "Isi ulang sabun dan tisu", "Semprot pengharum ruangan", "Kosongkan tempat sampah"], "location": "Lantai 4", "name": "Toilet Lantai 4", "order": 1795168084898.2}, "cvca4finta4lvazfgi8x": {"active": true, "assignees": ["heri"], "items": ["Sapu dan pel anak tangga", "Lap pegangan tangga", "Bersihkan bordes dan sudut tangga"], "location": "Tangga gedung", "name": "Tangga", "order": 1795168084890}, "d2vxv4d162h9al1ot9ef": {"active": true, "assignees": ["heri"], "items": ["Lap meja dan kursi tamu", "Rapikan posisi kursi", "Sapu dan pel lantai", "Kosongkan tempat sampah"], "location": "Café Lantai 1", "name": "Area Tamu Café", "order": 1795168084894}, "eh7cx7i1jdzld2ngrgdx": {"active": true, "assignees": ["windi"], "items": ["Cuci gelas dan peralatan makan", "Lap meja dan dispenser", "Bersihkan bagian luar kulkas", "Pel lantai pantry", "Buang sampah organik"], "location": "Lantai 3", "name": "Pantry Lantai 3", "order": 1795168084888.3}, "fohyuz2vrx7raqjbm6ak": {"active": true, "assignees": ["heri"], "items": ["Lap meja bar", "Cuci gelas dan peralatan bar", "Bersihkan wastafel bar", "Pel lantai area bar"], "location": "Café Lantai 1", "name": "Bar Café", "order": 1795168084896}, "gpgit1wvg0wh0qiqi6zh": {"active": true, "assignees": ["heri"], "items": ["Lap meja dan kursi", "Rapikan posisi kursi", "Bersihkan papan tulis dan layar", "Sapu atau sedot debu lantai", "Kosongkan tempat sampah"], "location": "Lantai 4", "name": "Ruang Meeting Lantai 4", "order": 1795168084898.1}, "jt6oz1vu9aw3l79jae3y": {"active": true, "assignees": ["heri"], "items": ["Cuci gelas dan peralatan makan", "Lap meja dan dispenser", "Bersihkan bagian luar kulkas", "Pel lantai pantry", "Buang sampah organik"], "location": "Lantai 4", "name": "Pantry Lantai 4", "order": 1795168084898.3}, "khpdwh67mzgz4t4npr2w": {"active": true, "assignees": ["heri"], "items": ["Lap meja resepsionis", "Bersihkan kaca pintu masuk", "Sapu dan pel lantai lobi", "Rapikan area tunggu", "Kosongkan tempat sampah"], "location": "Lantai 1", "name": "Receptionist Lantai 1", "order": 1795168084891}, "n64wv76ugoulswov1y6f": {"active": true, "assignees": ["heri"], "items": ["Lap meja dan kursi", "Rapikan posisi kursi", "Bersihkan papan tulis dan layar", "Sapu atau sedot debu lantai", "Kosongkan tempat sampah"], "location": "Lantai 1", "name": "Ruang Meeting Lantai 1", "order": 1795168084892}, "rey8f91h8p5myjav3o1l": {"active": true, "assignees": ["windi"], "items": ["Sikat kloset dan urinoir", "Bersihkan wastafel dan cermin", "Pel lantai lalu keringkan", "Isi ulang sabun dan tisu", "Semprot pengharum ruangan", "Kosongkan tempat sampah"], "location": "Lantai 3", "name": "Toilet Lantai 3", "order": 1795168084888.2}, "vy6z4j0zli9fobmaus6m": {"active": true, "assignees": ["heri"], "items": ["Sapu dan pel lantai", "Lap meja kerja dan kursi", "Lap gagang pintu dan sakelar", "Bersihkan kaca dan jendela", "Kosongkan tempat sampah"], "location": "Lantai 4", "name": "Area Kerja Lantai 4", "order": 1795168084898}, "wdo0ix2obxdp5enxd3hx": {"active": true, "assignees": ["heri"], "items": ["Sapu dan pel lorong", "Lap dinding dan pegangan", "Bersihkan sudut dan lis lantai", "Kosongkan tempat sampah"], "location": "Lantai 1", "name": "Lorong Lantai 1", "order": 1795168084889}, "y4xfwgyfm7dgrisdmqmq": {"active": true, "assignees": ["heri"], "items": ["Sikat kloset dan urinoir", "Bersihkan wastafel dan cermin", "Pel lantai lalu keringkan", "Isi ulang sabun dan tisu", "Semprot pengharum ruangan", "Kosongkan tempat sampah"], "location": "Lantai 2", "name": "Toilet Lantai 2", "order": 1795168084893}}};
+const configOk = () => window.FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && !/^ISI/.test(FIREBASE_CONFIG.apiKey);
+function makeDownloads() {
+  return { async save({ filename, data, mimeType }) {
+    const blob = data instanceof Blob ? data : new Blob([data], { type: mimeType || 'text/html' });
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } };
+}
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; document.querySelectorAll('.install-btn').forEach(b => b.hidden = false); });
+window.addEventListener('appinstalled', () => { installEvt = null; document.querySelectorAll('.install-btn').forEach(b => b.hidden = true); toast('Aplikasi terpasang di HP Anda.'); });
+const installBtn = (cls) => `<button type="button" class="btn ${cls || ''} install-btn" data-act="install" ${installEvt ? '' : 'hidden'}>⬇ Pasang aplikasi di HP</button>`;
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+
+/* ---------- state ---------- */
+const S = { db:null, assets:null, dl:null, accounts:{}, accLoaded:false, areas:[], reports:[], repLoaded:false,
+  settings:{}, me:null, tab:null, date:today(), staffFilter:'', unsubRep:null, readOnly:false, screen:null, pending:false };
+const me = () => S.accounts[S.me] || {};
+const isMgr = () => me().role === 'manager';
+const staffList = () => Object.entries(S.accounts).filter(([, a]) => a.role === 'staff').map(([u, a]) => ({ u, ...a })).sort((a, b) => a.name.localeCompare(b.name));
+const nameOf = u => S.accounts[u]?.name || u;
+
+/* ---------- boot ---------- */
+async function init() {
+  const slow = setTimeout(() => {
+    if (!S.accLoaded) $('#app').innerHTML = msgScreen('Data belum bisa dimuat', 'Periksa koneksi internet Anda. Halaman ini akan tampil sendiri begitu data tersedia.');
+  }, 10000);
+  if (!window.firebase || !configOk()) { clearTimeout(slow); $('#app').innerHTML = msgScreen('Aplikasi belum terhubung ke database', !window.firebase ? 'Library Firebase gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.' : 'Isi file config.js dengan konfigurasi Firebase Anda (lihat PANDUAN langkah 2), lalu unggah ulang.'); return; }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db = firebase.firestore();
+  try { await db.enablePersistence({ synchronizeTabs: true }); } catch (e) {}
+  S.db = db; S.assets = null; S.dl = makeDownloads();
+
+  db.collection('accounts').onSnapshot(snap => {
+    S.accounts = {}; snap.docs.forEach(d => { S.accounts[d.id] = d.data(); });
+    if (!snap.metadata.fromCache || snap.size) { S.accLoaded = true; clearTimeout(slow); }
+    route();
+  }, e => { clearTimeout(slow); $('#app').innerHTML = msgScreen('Data akun tidak bisa dimuat', errMsg(e)); });
+
+  db.collection('areas').onSnapshot(snap => {
+    S.areas = snap.docs.map(d => ({ id:d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name));
+    if (S.screen && S.screen.startsWith('app')) renderContent();
+  }, e => toast('Area kerja tidak bisa dimuat: ' + errMsg(e), 'bad'));
+
+  db.doc('settings/app').onSnapshot(snap => {
+    S.settings = snap.exists ? snap.data() : {};
+    const o = $('#officeName'); if (o) o.textContent = S.settings.officeName || '';
+    const lo = $('#loginOffice'); if (lo) lo.textContent = S.settings.officeName || 'Sistem kebersihan kantor';
+    if (S.tab === 'pengaturan' && S.screen?.startsWith('app')) renderContent();
+  }, () => {});
+
+  subReports();
+}
+function subReports() {
+  if (S.unsubRep) S.unsubRep();
+  S.repLoaded = false;
+  S.unsubRep = S.db.collection('reports').where('date', '==', S.date).onSnapshot(snap => {
+    S.reports = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    S.repLoaded = true;
+    if (S.screen && S.screen.startsWith('app')) renderContent();
+  }, e => toast('Laporan tidak bisa dimuat: ' + errMsg(e), 'bad'));
+}
+function setDate(d) { if (d && d !== S.date) { S.date = d; subReports(); } }
+
+function route() {
+  let scr;
+  if (!S.accLoaded) scr = 'loading';
+  else if (!Object.keys(S.accounts).length) scr = 'setup';
+  else {
+    if (!S.me) { const u = ss('kbr-user'); if (u && S.accounts[u] && S.accounts[u].active !== false) S.me = u; }
+    if (S.me && (!S.accounts[S.me] || S.accounts[S.me].active === false)) { S.me = null; ss('kbr-user', null); }
+    scr = S.me ? 'app:' + S.me + ':' + me().role : 'login';
+  }
+  if (scr !== S.screen) { S.screen = scr; paint(scr); }
+  else if (scr.startsWith('app')) { updateHeader(); renderContent(); }
+}
+
+/* ---------- screens ---------- */
+function msgScreen(t, p) {
+  return `<div class="auth"><div class="auth-card"><div class="auth-top"><h1>${esc(t)}</h1></div><div class="auth-body"><p class="muted" style="margin:0">${esc(p)}</p></div></div></div>`;
+}
+function paint(scr) {
+  closeModal();
+  const app = $('#app');
+  if (scr === 'loading') { app.innerHTML = `<div class="loading"><div><div class="spin"></div>Memuat data…</div></div>`; return; }
+  if (scr === 'setup') {
+    app.innerHTML = `<div class="auth"><div class="auth-card">
+      <div class="auth-top"><h1>Siapkan aplikasi</h1><p>Buat akun manager pertama. Akun petugas bisa ditambahkan setelah ini.</p></div>
+      <form class="auth-body" data-form="setup" autocomplete="off">
+        <div class="field"><label for="s-office">Nama kantor</label><input id="s-office" type="text" name="office" placeholder="Contoh: PT Maju Bersama, Gedung A" required></div>
+        <div class="field"><label for="s-name">Nama manager</label><input id="s-name" type="text" name="name" required></div>
+        <div class="field"><label for="s-user">Username</label><input id="s-user" type="text" name="username" autocapitalize="none" required><small>Huruf kecil, angka, titik, garis bawah. Minimal 3 karakter.</small></div>
+        <div class="field"><label for="s-pw">Password</label><input id="s-pw" type="password" name="pw" minlength="6" required></div>
+        <div class="field"><label for="s-pw2">Ulangi password</label><input id="s-pw2" type="password" name="pw2" minlength="6" required></div>
+        <button class="btn primary" type="submit">Buat akun manager</button>
+        <p class="hint" style="margin:18px 0 10px">atau</p>
+        <button class="btn" type="button" data-act="seed" style="width:100%;padding:12px">Pakai data dari versi sebelumnya</button>
+        <p class="hint">Memasukkan akun itadmin, Windi, Heri, dan ${Object.keys(SEED.areas).length} area kerja beserta checklist-nya. Password tetap sama.</p>
+      </form></div></div>`;
+    return;
+  }
+  if (scr === 'login') {
+    app.innerHTML = `<div class="auth"><div class="auth-card">
+      <div class="auth-top"><h1>Kebersihan Kantor</h1><p id="loginOffice">${esc(S.settings.officeName || 'Sistem kebersihan kantor')}</p></div>
+      <form class="auth-body" data-form="login">
+        <div class="field"><label for="l-user">Username</label><input id="l-user" type="text" name="username" autocapitalize="none" autocomplete="username" required></div>
+        <div class="field"><label for="l-pw">Password</label><input id="l-pw" type="password" name="pw" autocomplete="current-password" required></div>
+        <button class="btn primary" type="submit">Masuk</button>
+        <p class="hint">Lupa password? Minta manager mengatur ulang password Anda.</p>
+        <div style="margin-top:14px">${installBtn('mop')}</div>
+      </form></div></div>`;
+    setTimeout(() => $('#l-user')?.focus(), 50);
+    return;
+  }
+  // app
+  const banner = S.readOnly ? '<div class="banner">Akun claude.ai Anda hanya punya akses lihat ke aplikasi ini. Minta pemilik aplikasi memberi akses Contributor agar bisa menyimpan laporan.</div>' : '';
+  const brand = `<div class="brand"><span class="logo">${ICON.logo}</span><div style="min-width:0"><div class="b-title">Kebersihan Kantor</div><div class="b-sub" id="officeName">${esc(S.settings.officeName || '')}</div></div></div>`;
+  if (isMgr()) {
+    const tabs = [['pantau','Pemantauan',ICON.eye], ['area','Area kerja',ICON.map], ['pengguna','Pengguna',ICON.users], ['pengaturan','Pengaturan',ICON.gear]];
+    if (!tabs.some(t => t[0] === S.tab)) S.tab = 'pantau';
+    app.innerHTML = `<div class="desk">
+      <aside class="side">
+        <div style="display:flex;align-items:center;gap:8px">${brand}
+          <div class="mob-acts"><button class="btn ghost sm" data-act="pw" aria-label="Ganti password">${ICON.key}</button><button class="btn ghost sm" data-act="logout" aria-label="Keluar">${ICON.out}</button></div></div>
+        <nav class="snav" role="tablist">${tabs.map(([k, l, ic]) => `<button class="tab" role="tab" data-act="tab" data-tab="${k}">${ic}<span>${l}</span></button>`).join('')}</nav>
+        <div class="side-foot">
+          <div class="who"><div class="who-name" id="whoName"></div><div class="who-role" id="whoRole"></div></div>
+          <div class="row"><button class="btn ghost sm" data-act="pw">${ICON.key}Password</button><button class="btn ghost sm" data-act="logout">${ICON.out}Keluar</button></div>
+        </div>
+      </aside>
+      <div class="desk-main"><main><div class="wrap">${banner}
+        <h1 class="page-title" id="pageTitle"></h1><p class="page-date" id="pageSub"></p>
+        <div id="toolbar" class="toolbar"></div><div id="content"></div>
+      </div></main></div>
+    </div>`;
+  } else {
+    const tabs = [['tugas','Tugas',ICON.list], ['laporan','Laporan',ICON.doc], ['akun','Akun',ICON.user]];
+    if (!tabs.some(t => t[0] === S.tab)) S.tab = 'tugas';
+    app.innerHTML = `<div class="mob">
+      <header class="mob-top">${brand}<div class="who" style="text-align:right"><div class="who-name" id="whoName"></div><div class="who-role">Petugas</div></div></header>
+      <main><div class="wrap">${banner}<div id="toolbar" class="toolbar"></div><div id="content"></div></div></main>
+      <nav class="bnav" role="tablist"><div class="bnav-in">${tabs.map(([k, l, ic]) => `<button class="tab" role="tab" data-act="tab" data-tab="${k}">${ic}<span>${l}</span></button>`).join('')}</div></nav>
+    </div>`;
+  }
+  updateHeader();
+  setTab(S.tab);
+}
+function updateHeader() {
+  const n = $('#whoName'); if (n) n.textContent = me().name || '';
+  const r = $('#whoRole'); if (r) r.textContent = ROLE[me().role] || '';
+}
+function setTab(t) {
+  S.tab = t;
+  document.querySelectorAll('.tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-selected', b.dataset.tab === t); });
+  if (t === 'tugas') setDate(today());
+  const TT = { pantau:['Pemantauan harian','Laporan petugas masuk secara langsung. Periksa foto lalu setujui atau minta revisi.'], area:['Area kerja','Ruangan yang harus dibersihkan beserta daftar tugasnya.'], pengguna:['Pengguna','Akun manager dan petugas kebersihan.'], pengaturan:['Pengaturan','Identitas kantor untuk halaman masuk dan kop laporan.'] };
+  const pt = $('#pageTitle'); if (pt && TT[t]) { pt.textContent = TT[t][0]; $('#pageSub').textContent = TT[t][1]; }
+  window.scrollTo(0, 0);
+  renderToolbar();
+  renderContent();
+}
+function renderToolbar() {
+  const tb = $('#toolbar'); if (!tb) return;
+  const dateField = `<div class="field"><label for="f-date">Tanggal</label><input id="f-date" type="date" value="${S.date}" max="${today()}" data-change="date"></div>`;
+  const printBtn = `<button class="btn mop" data-act="print">${ICON.print}Cetak laporan harian</button>`;
+  if (S.tab === 'pantau') {
+    tb.innerHTML = dateField + `<div class="field"><label for="f-staff">Petugas</label><select id="f-staff" data-change="staff"><option value="">Semua petugas</option>${staffList().map(s => `<option value="${esc(s.u)}"${S.staffFilter === s.u ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div><div class="grow"></div>` + printBtn;
+  } else if (S.tab === 'laporan') {
+    tb.innerHTML = dateField + '<div class="grow"></div>' + printBtn;
+  } else if (S.tab === 'area') {
+    tb.innerHTML = `<div class="grow"></div><button class="btn primary" data-act="areaForm">${ICON.plus}Tambah area</button>`;
+  } else if (S.tab === 'pengguna') {
+    tb.innerHTML = `<div class="grow"></div><button class="btn primary" data-act="userForm">${ICON.plus}Tambah pengguna</button>`;
+  } else tb.innerHTML = '';
+}
+function renderContent() {
+  const c = $('#content'); if (!c) return;
+  const ae = document.activeElement;
+  if (ae && c.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) { S.pending = true; return; }
+  S.pending = false;
+  c.innerHTML = (VIEWS[S.tab] || (() => ''))();
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (S.pending) renderContent(); }, 60));
+
+/* ---------- data helpers ---------- */
+const activeAreas = () => S.areas.filter(a => a.active !== false);
+const areasFor = u => activeAreas().filter(a => !a.assignees?.length || a.assignees.includes(u));
+const repFor = (areaId, u) => S.reports.find(r => r.areaId === areaId && r.username === u);
+const loadingBlock = () => `<div class="loading" style="min-height:30vh"><div><div class="spin"></div>Memuat laporan…</div></div>`;
+
+function photo(r, which) {
+  const label = which === 'before' ? 'Sebelum' : 'Sesudah';
+  return r[which]
+    ? `<button class="ph" data-act="zoom" data-rep="${esc(r.id)}" data-which="${which}" aria-label="Perbesar foto ${label.toLowerCase()}"><img src="${esc(imgSrc(r[which]))}" alt="Foto ${label.toLowerCase()} ${esc(r.areaName)}" loading="lazy"><span>${label}</span></button>`
+    : `<div class="ph none"><span>Tanpa foto ${label.toLowerCase()}</span></div>`;
+}
+function checklist(items) {
+  return `<ul class="checks">${(items || []).map(i => `<li class="${i.done ? 'y' : 'n'}">${esc(i.t)}</li>`).join('')}</ul>`;
+}
+function repCard(r, mgr) {
+  const done = (r.items || []).filter(i => i.done).length, total = (r.items || []).length;
+  return `<article class="rep">
+    <div class="rep-photos">${photo(r, 'before')}${photo(r, 'after')}</div>
+    <div class="rep-body">
+      <div class="rep-head"><div><h3>${esc(r.areaName)}</h3>${r.location ? `<p class="meta">${esc(r.location)}</p>` : ''}</div>${chip(r.status)}</div>
+      <p class="meta"><span>${esc(r.staffName)}</span><span>Dikirim ${fmtTime(r.submittedAt)}</span><span>${done} dari ${total} tugas selesai</span></p>
+      <details><summary>Rincian tugas</summary>${checklist(r.items)}</details>
+      ${r.note ? `<p class="note"><b>Catatan petugas:</b> ${esc(r.note)}</p>` : ''}
+      ${r.managerNote ? `<p class="note${r.status === 'revisi' ? ' bad' : ''}"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
+      ${r.reviewedBy ? `<p class="meta"><span>Diperiksa ${esc(r.reviewedBy)}, ${fmtTime(r.reviewedAt)}</span></p>` : ''}
+      ${mgr ? `<div class="acts">
+        <button class="btn ok sm" data-act="approve" data-rep="${esc(r.id)}" ${r.status === 'disetujui' ? 'disabled' : ''}>Setujui</button>
+        <button class="btn bad sm" data-act="revise" data-rep="${esc(r.id)}" ${r.status === 'revisi' ? 'disabled' : ''}>Minta revisi</button>
+      </div>` : ''}
+    </div></article>`;
+}
+
+/* ---------- views ---------- */
+const VIEWS = {
+  tugas() {
+    const areas = areasFor(S.me);
+    if (!S.repLoaded) return loadingBlock();
+    if (!areas.length) return `<div class="empty"><h3>Belum ada area untuk Anda</h3><p>Minta manager menambahkan area kerja dan menugaskan Anda.</p></div>`;
+    const done = areas.filter(a => { const r = repFor(a.id, S.me); return r && r.status !== 'revisi'; }).length;
+    const pct = Math.round(done / areas.length * 100);
+    const hero = `<section class="hero">
+      <div class="hero-num">${done}<span>/${areas.length}</span></div>
+      <div class="hero-txt"><h2>${done === areas.length ? 'Semua area sudah dilaporkan' : 'Area sudah dilaporkan hari ini'}</h2><p>${esc(fmtDate(S.date))}</p></div>
+      <div class="bucket" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+    </section>`;
+    const order = { revisi:0, belum:1, menunggu:2, disetujui:3 };
+    const rows = areas.map(a => ({ a, r: repFor(a.id, S.me) })).sort((x, y) => order[x.r ? x.r.status : 'belum'] - order[y.r ? y.r.status : 'belum']);
+    const cards = rows.map(({ a, r }) => {
+      const st = r ? r.status : 'belum';
+      const btn = !r ? `<button class="btn primary" data-act="work" data-area="${a.id}">${ICON.cam}Mulai kerjakan</button>`
+        : st === 'revisi' ? `<button class="btn bad" data-act="work" data-area="${a.id}">${ICON.cam}Perbaiki dan foto ulang</button>`
+        : st === 'menunggu' ? `<button class="btn" data-act="work" data-area="${a.id}">Lihat atau ubah laporan</button>`
+        : `<button class="btn" data-act="work" data-area="${a.id}">Lihat laporan</button>`;
+      return `<div class="task">
+        <div class="task-h"><div><h3>${esc(a.name)}</h3><p class="loc">${a.location ? esc(a.location) + ', ' : ''}${(a.items || []).length} tugas${r ? `, dikirim ${fmtTime(r.submittedAt)}` : ''}</p></div>${chip(st)}</div>
+        ${st === 'revisi' && r.managerNote ? `<p class="note bad"><b>Revisi:</b> ${esc(r.managerNote)}</p>` : ''}
+        ${btn}</div>`;
+    }).join('');
+    return hero + `<div class="grid">${cards}</div>`;
+  },
+  laporan() {
+    if (!S.repLoaded) return loadingBlock();
+    const reps = S.reports.filter(r => r.username === S.me).sort((a, b) => (a.submittedAt || '').localeCompare(b.submittedAt || ''));
+    const head = `<h2 class="sec-title" style="margin-top:0">${esc(fmtDate(S.date))}</h2>`;
+    if (!reps.length) return head + `<div class="empty"><h3>Tidak ada laporan di tanggal ini</h3><p>Pilih tanggal lain, atau kirim laporan dari menu Tugas hari ini.</p></div>`;
+    return head + `<div class="reps">${reps.map(r => repCard(r, false)).join('')}</div>`;
+  },
+  akun() {
+    const n = me().name || '';
+    const ini = n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+    return `<div class="task"><div class="prof"><span class="avatar">${esc(ini)}</span><div><h3>${esc(n)}</h3><p class="loc">Username: ${esc(S.me)}<br>Petugas kebersihan</p></div></div></div>
+      <div class="stack">
+        ${installBtn('mop')}
+        <button class="btn" data-act="pw">${ICON.key}Ganti password</button>
+        <button class="btn bad" data-act="logout">${ICON.out}Keluar dari aplikasi</button>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:18px">${esc(S.settings.officeName || '')}</p>`;
+  },
+  pantau() {
+    if (!S.repLoaded) return loadingBlock();
+    const f = S.staffFilter;
+    const reps = S.reports.filter(r => !f || r.username === f);
+    const areas = f ? areasFor(f) : activeAreas();
+    const missing = areas.filter(a => !reps.some(r => r.areaId === a.id));
+    const cnt = s => reps.filter(r => r.status === s).length;
+    const order = { menunggu:0, revisi:1, disetujui:2 };
+    reps.sort((a, b) => (order[a.status] - order[b.status]) || (b.submittedAt || '').localeCompare(a.submittedAt || ''));
+    const stats = `<div class="stats">
+      <div class="stat"><b>${areas.length}</b><span>Area dijadwalkan</span></div>
+      <div class="stat"><b>${reps.length}</b><span>Laporan masuk</span></div>
+      <div class="stat wait"><b>${cnt('menunggu')}</b><span>Menunggu cek</span></div>
+      <div class="stat ok"><b>${cnt('disetujui')}</b><span>Disetujui</span></div>
+      <div class="stat bad"><b>${cnt('revisi')}</b><span>Perlu revisi</span></div>
+    </div>`;
+    if (!S.areas.length && !reps.length) return stats + `<div class="empty"><h3>Mulai dengan menambahkan area kerja</h3><p>Petugas baru bisa mengirim laporan setelah ada area yang harus dibersihkan.</p><button class="btn primary" data-act="tab" data-tab="area">Buka Area kerja</button></div>`;
+    const list = reps.length ? `<div class="reps">${reps.map(r => repCard(r, true)).join('')}</div>`
+      : `<div class="empty"><h3>Belum ada laporan masuk</h3><p>Laporan petugas untuk ${esc(fmtDate(S.date))} akan muncul di sini secara langsung.</p></div>`;
+    const miss = missing.length ? `<h2 class="sec-title">Belum dikerjakan (${missing.length})</h2><div class="missing">${missing.map(a => `<span>${esc(a.name)}</span>`).join('')}</div>` : '';
+    return stats + `<h2 class="sec-title" style="margin-top:0">Laporan petugas</h2>` + list + miss;
+  },
+  area() {
+    if (!S.areas.length) return `<div class="empty"><h3>Belum ada area kerja</h3><p>Tambahkan ruangan satu per satu, atau mulai dari contoh area kantor lalu sesuaikan.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn primary" data-act="areaForm">${ICON.plus}Tambah area</button><button class="btn" data-act="sampleAreas">Pakai contoh area</button></div></div>`;
+    return `<div class="grid">${S.areas.map(a => `<div class="card">
+      <div class="rep-head"><h3>${esc(a.name)}</h3>${a.active === false ? '<span class="chip idle">Nonaktif</span>' : ''}</div>
+      ${a.location ? `<p class="loc">${esc(a.location)}</p>` : ''}
+      <ul class="checks" style="font-size:13.5px">${(a.items || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+      <p class="loc"><b>Petugas:</b> ${a.assignees?.length ? esc(a.assignees.map(nameOf).join(', ')) : 'Semua petugas'}</p>
+      <div class="foot"><button class="btn sm" data-act="areaForm" data-area="${a.id}">Ubah</button><button class="btn sm bad" data-act="areaDel" data-area="${a.id}">Hapus</button></div>
+    </div>`).join('')}</div>`;
+  },
+  pengguna() {
+    const rows = Object.entries(S.accounts).sort((a, b) => (a[1].role === b[1].role ? a[1].name.localeCompare(b[1].name) : a[1].role === 'manager' ? -1 : 1));
+    return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Nama</th><th>Username</th><th>Peran</th><th>Status</th><th></th></tr></thead><tbody>
+      ${rows.map(([u, a]) => `<tr>
+        <td><b>${esc(a.name)}</b>${u === S.me ? ' <span class="muted">(Anda)</span>' : ''}</td>
+        <td>${esc(u)}</td><td>${ROLE[a.role]}</td>
+        <td>${a.active === false ? '<span class="chip idle">Nonaktif</span>' : '<span class="chip ok">Aktif</span>'}</td>
+        <td style="text-align:right;white-space:nowrap">
+          <button class="btn sm" data-act="userForm" data-user="${esc(u)}">Ubah</button>
+          ${u !== S.me ? `<button class="btn sm" data-act="userToggle" data-user="${esc(u)}">${a.active === false ? 'Aktifkan' : 'Nonaktifkan'}</button>` : ''}
+        </td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="muted" style="font-size:13px;margin-top:12px">Petugas masuk dengan username dan password dari sini. Bagikan link aplikasi ke petugas. Di HP Android, buka link di Chrome lalu tekan Pasang aplikasi.</p>`;
+  },
+  pengaturan() {
+    return `<div class="card" style="max-width:560px">
+      <h3>Identitas kantor</h3>
+      <form data-form="settings">
+        <div class="field"><label for="st-office">Nama kantor</label><input id="st-office" type="text" name="office" value="${esc(S.settings.officeName || '')}" required><small>Tampil di halaman masuk dan di kop laporan cetak.</small></div>
+        <div class="field"><label for="st-loc">Alamat atau lokasi (opsional)</label><input id="st-loc" type="text" name="address" value="${esc(S.settings.address || '')}"></div>
+        <button class="btn primary" type="submit">Simpan pengaturan</button>
+      </form>
+    </div>
+    <div class="card" style="max-width:560px;margin-top:14px">
+      <h3>Penyimpanan foto</h3>
+      <p class="loc">Foto dikompres otomatis (sekitar 100–150 KB per foto) dan disimpan di database Firestore. Setiap foto diberi cap tanggal, jam, dan nama area secara otomatis.</p>
+    </div>`;
+  }
+};
+
+/* ---------- modal ---------- */
+function openModal(html, wide) {
+  const m = $('#modal');
+  m.innerHTML = `<div class="backdrop" data-act="close"></div><div class="sheet${wide ? ' wide' : ''}" role="dialog" aria-modal="true">${html}</div>`;
+  m.classList.add('open'); m.setAttribute('aria-hidden', 'false');
+  if (!html.includes('data-form="work"')) setTimeout(() => m.querySelector('input:not([type=hidden]):not([type=file]):not([disabled]),textarea,select')?.focus(), 40);
+}
+function closeModal() { const m = $('#modal'); m.classList.remove('open'); m.setAttribute('aria-hidden', 'true'); m.innerHTML = ''; W = null; }
+const sheetHead = t => `<div class="sheet-h"><h2>${esc(t)}</h2><button class="btn ghost sm" type="button" data-act="close" aria-label="Tutup">✕</button></div>`;
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if (!$('#printRoot').hidden) closePrint(); else if ($('#modal').classList.contains('open')) closeModal(); }
+});
+
+/* ---------- photo handling ---------- */
+async function toCanvas(file, max, stamp) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Foto tidak bisa dibaca. Coba ambil ulang dengan format JPG atau PNG.')); i.src = url; });
+    const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+    const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
+    if (stamp) {
+      const fs = Math.max(12, Math.round(c.width / 34)), h = fs * 2.1;
+      g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, c.height - h, c.width, h);
+      g.fillStyle = '#fff'; g.font = `600 ${fs}px Manrope, Arial, sans-serif`; g.textBaseline = 'middle';
+      g.fillText(stamp, fs * .6, c.height - h / 2, c.width - fs * 1.2);
+    }
+    return c;
+  } finally { URL.revokeObjectURL(url); }
+}
+async function storePhoto(file, stamp) {
+  if (S.assets) {
+    try {
+      const c = await toCanvas(file, 1600, stamp);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.8));
+      const res = await S.assets.upload(blob, { type:'image/jpeg' });
+      return res.id;
+    } catch (e) {
+      if (!['not_granted', 'capability_disabled', 'capability_removed', 'unsupported_type'].includes(e?.code)) throw e;
+    }
+  }
+  let max = 1100, q = 0.68, d = '';
+  for (let i = 0; i < 6; i++) {
+    const c = await toCanvas(file, max, stamp); d = c.toDataURL('image/jpeg', q);
+    if (d.length < 190000) return d;
+    max = Math.round(max * 0.82); q = Math.max(0.4, q - 0.05);
+  }
+  return d;
+}
+
+/* ---------- work form (staff) ---------- */
+let W = null;
+function slotHTML(which, src, locked) {
+  const L = which === 'before' ? 'sebelum' : 'sesudah';
+  if (locked) return src ? `<div class="shot"><img src="${esc(src)}" alt="Foto ${L}"></div>` : `<p class="muted" style="margin:0">Tanpa foto ${L}</p>`;
+  if (!src) return `<label class="cam"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}<span>Ambil foto ${L}</span><small>${which === 'after' ? 'Wajib, sebagai bukti hasil kerja' : 'Dianjurkan, kondisi sebelum dibersihkan'}</small></label>
+    <label class="gal"><input type="file" accept="image/*" data-ph="${which}" class="sr">atau pilih dari galeri</label>`;
+  return `<div class="shot"><img src="${esc(src)}" alt="Foto ${L}"><span class="shot-ok">✓ Foto ${L} siap</span></div>
+    <div class="shot-acts"><label class="btn"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}Foto ulang</label><label class="btn"><input type="file" accept="image/*" data-ph="${which}" class="sr">Dari galeri</label></div>`;
+}
+function openWork(areaId) {
+  const a = S.areas.find(x => x.id === areaId); if (!a) return;
+  const r = repFor(areaId, S.me);
+  const locked = (r && r.status === 'disetujui') || S.readOnly || S.date !== today();
+  W = { areaId, before: r?.before || null, after: r?.after || null, newBefore: null, newAfter: null };
+  const items = (a.items || []).map(t => ({ t, done: r ? !!(r.items || []).find(x => x.t === t)?.done : false }));
+  const step = (n, id, title, body, done) => `<div class="step"><div class="step-n${done ? ' done' : ''}" id="${id}">${done ? '✓' : n}</div><div><h3>${title}</h3>${body}</div></div>`;
+  openModal(`${sheetHead(a.name)}
+    <form data-form="work"><div class="sheet-b">
+      <p class="muted" style="margin:0 0 14px">${a.location ? esc(a.location) + '. ' : ''}${esc(fmtDate(today()))}</p>
+      ${r ? `<p style="margin:0 0 12px">${chip(r.status)}</p>` : ''}
+      ${r?.status === 'revisi' && r.managerNote ? `<p class="note bad" style="margin-bottom:16px"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
+      ${step(1, 'sn-before', 'Foto sebelum dibersihkan', `<div id="slot-before">${slotHTML('before', imgSrc(W.before), locked)}</div>`, !!W.before)}
+      ${step(2, 'sn-items', 'Kerjakan dan centang tugas', locked ? checklist(items) : items.map((i, k) => `<label class="checkrow"><input type="checkbox" name="it${k}" ${i.done ? 'checked' : ''}><span>${esc(i.t)}</span></label>`).join(''), items.length && items.every(i => i.done))}
+      ${step(3, 'sn-after', 'Foto sesudah dibersihkan', `<div id="slot-after">${slotHTML('after', imgSrc(W.after), locked)}</div>`, !!W.after)}
+      ${step(4, 'sn-note', 'Catatan (opsional)', `<textarea id="w-note" name="note" ${locked ? 'disabled' : ''} placeholder="Contoh: sabun cuci tangan habis, perlu restok">${esc(r?.note || '')}</textarea>`, false)}
+      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Tanggal, jam, nama area, dan nama Anda dicap otomatis pada setiap foto.</p>'}
+    </div>
+    <div class="sheet-f"><button class="btn" type="button" data-act="close">${locked ? 'Tutup' : 'Batal'}</button>
+      ${locked ? '' : `<button class="btn primary" type="submit" id="w-submit">${r ? 'Kirim ulang laporan' : 'Kirim laporan'}</button>`}</div>
+    </form>`);
+}
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.ph && W) {
+    const f = t.files && t.files[0]; if (!f) return;
+    if (f.type && !/^image\//.test(f.type)) { toast('File harus berupa foto.', 'bad'); return; }
+    const which = t.dataset.ph;
+    W[which === 'before' ? 'newBefore' : 'newAfter'] = f;
+    $('#slot-' + which).innerHTML = slotHTML(which, URL.createObjectURL(f), false);
+    const sn = $('#sn-' + which); if (sn) { sn.classList.add('done'); sn.textContent = '✓'; }
+    if (which === 'before') setTimeout(() => $('#sn-items')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+  }
+  if (/^it\d+$/.test(t.name || '') && W) {
+    const boxes = [...document.querySelectorAll('#modal input[name^=it]')];
+    const sn = $('#sn-items'); if (sn) { const all = boxes.length && boxes.every(x => x.checked); sn.classList.toggle('done', all); sn.textContent = all ? '✓' : '2'; }
+  }
+  if (t.dataset.change === 'date') { setDate(t.value || today()); t.blur(); }
+  if (t.dataset.change === 'staff') { S.staffFilter = t.value; t.blur(); renderContent(); }
+});
+
+/* ---------- forms ---------- */
+const FORMS = {
+  async setup(f) {
+    const v = Object.fromEntries(new FormData(f));
+    const u = v.username.trim().toLowerCase();
+    if (!/^[a-z0-9._]{3,30}$/.test(u)) return toast('Username hanya boleh huruf kecil, angka, titik, dan garis bawah (3–30 karakter).', 'bad');
+    if (v.pw.length < 6) return toast('Password minimal 6 karakter.', 'bad');
+    if (v.pw !== v.pw2) return toast('Kedua password tidak sama.', 'bad');
+    busy(f, true);
+    try {
+      await S.db.doc('settings/app').set({ officeName: v.office.trim(), address: '' });
+      await S.db.doc('accounts/' + u).set({ name: v.name.trim(), role: 'manager', pass: await hashPw(u, v.pw), active: true, createdAt: new Date().toISOString() });
+      S.me = u; ss('kbr-user', u); toast('Akun manager dibuat. Selamat datang!');
+    } catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
+  },
+  async login(f) {
+    const v = Object.fromEntries(new FormData(f));
+    const u = v.username.trim().toLowerCase(), a = S.accounts[u];
+    if (!a || a.pass !== await hashPw(u, v.pw)) return toast('Username atau password salah.', 'bad');
+    if (a.active === false) return toast('Akun ini dinonaktifkan. Hubungi manager.', 'bad');
+    S.me = u; ss('kbr-user', u); S.tab = null; route();
+  },
+  async work(f) {
+    if (!W) return;
+    const a = S.areas.find(x => x.id === W.areaId); if (!a) return;
+    if (!W.after && !W.newAfter) return toast('Foto sesudah dibersihkan wajib dilampirkan.', 'bad');
+    const fd = new FormData(f);
+    const items = (a.items || []).map((t, k) => ({ t, done: fd.get('it' + k) === 'on' }));
+    const btn = $('#w-submit'); btn.disabled = true; btn.textContent = 'Mengunggah foto…';
+    try {
+      const date = today(), stampBase = `${a.name}  |  ${fmtStamp(new Date())}  |  ${me().name}`;
+      const w = W;
+      const before = w.newBefore ? await storePhoto(w.newBefore, 'SEBELUM  |  ' + stampBase) : w.before;
+      const after = w.newAfter ? await storePhoto(w.newAfter, 'SESUDAH  |  ' + stampBase) : w.after;
+      btn.textContent = 'Menyimpan laporan…';
+      await S.db.doc(`reports/${date}_${a.id}_${S.me}`).set({
+        date, areaId: a.id, areaName: a.name, location: a.location || '', username: S.me, staffName: me().name,
+        items, before: before || null, after: after || null, note: (fd.get('note') || '').trim(),
+        submittedAt: new Date().toISOString(), status: 'menunggu', managerNote: '', reviewedBy: '', reviewedAt: null
+      });
+      closeModal(); toast('Laporan terkirim ke manager.');
+    } catch (e) { toast(errMsg(e), 'bad'); btn.disabled = false; btn.textContent = 'Kirim laporan'; }
+  },
+  async revise(f) {
+    const v = Object.fromEntries(new FormData(f));
+    busy(f, true);
+    try {
+      await S.db.doc('reports/' + f.dataset.rep).update({ status: 'revisi', managerNote: v.note.trim(), reviewedBy: me().name, reviewedAt: new Date().toISOString() });
+      closeModal(); toast('Permintaan revisi dikirim ke petugas.');
+    } catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
+  },
+  async area(f) {
+    const v = Object.fromEntries(new FormData(f));
+    const items = v.items.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!items.length) return toast('Isi minimal satu tugas.', 'bad');
+    const assignees = [...f.querySelectorAll('input[name=as]:checked')].map(i => i.value);
+    const id = f.dataset.area;
+    const old = id ? S.areas.find(a => a.id === id) : null;
+    busy(f, true);
+    try {
+      const ref = id ? S.db.doc('areas/' + id) : S.db.collection('areas').doc();
+      await ref.set({ name: v.name.trim(), location: v.location.trim(), items, assignees, active: v.active !== 'off', order: old?.order ?? Date.now() });
+      closeModal(); toast(id ? 'Area diperbarui.' : 'Area ditambahkan.');
+    } catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
+  },
+  async user(f) {
+    const v = Object.fromEntries(new FormData(f));
+    const edit = f.dataset.user;
+    const u = edit || v.username.trim().toLowerCase();
+    if (!edit) {
+      if (!/^[a-z0-9._]{3,30}$/.test(u)) return toast('Username hanya boleh huruf kecil, angka, titik, dan garis bawah (3–30 karakter).', 'bad');
+      if (S.accounts[u]) return toast('Username sudah dipakai.', 'bad');
+      if ((v.pw || '').length < 6) return toast('Password minimal 6 karakter.', 'bad');
+    } else if (v.pw && v.pw.length < 6) return toast('Password baru minimal 6 karakter.', 'bad');
+    if (edit && S.accounts[edit].role === 'manager' && v.role !== 'manager' && activeManagers().length <= 1)
+      return toast('Harus ada minimal satu manager aktif.', 'bad');
+    busy(f, true);
+    try {
+      if (edit) {
+        const patch = { name: v.name.trim(), role: v.role };
+        if (v.pw) patch.pass = await hashPw(u, v.pw);
+        await S.db.doc('accounts/' + u).update(patch);
+      } else {
+        await S.db.doc('accounts/' + u).set({ name: v.name.trim(), role: v.role, pass: await hashPw(u, v.pw), active: true, createdAt: new Date().toISOString() });
+      }
+      closeModal(); toast(edit ? 'Pengguna diperbarui.' : `Akun ${u} dibuat.`);
+    } catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
+  },
+  async pw(f) {
+    const v = Object.fromEntries(new FormData(f));
+    if (me().pass !== await hashPw(S.me, v.old)) return toast('Password lama salah.', 'bad');
+    if (v.pw.length < 6) return toast('Password baru minimal 6 karakter.', 'bad');
+    if (v.pw !== v.pw2) return toast('Kedua password baru tidak sama.', 'bad');
+    busy(f, true);
+    try { await S.db.doc('accounts/' + S.me).update({ pass: await hashPw(S.me, v.pw) }); closeModal(); toast('Password diganti.'); }
+    catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
+  },
+  async settings(f) {
+    const v = Object.fromEntries(new FormData(f));
+    busy(f, true);
+    try { await S.db.doc('settings/app').set({ ...S.settings, officeName: v.office.trim(), address: v.address.trim() }); toast('Pengaturan disimpan.'); }
+    catch (e) { toast(errMsg(e), 'bad'); }
+    busy(f, false); f.querySelector('button')?.blur();
+  },
+  async confirmDel(f) {
+    busy(f, true);
+    try { await S.db.doc('areas/' + f.dataset.area).delete(); closeModal(); toast('Area dihapus. Laporan lama tetap tersimpan.'); }
+    catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
+  }
+};
+const activeManagers = () => Object.values(S.accounts).filter(a => a.role === 'manager' && a.active !== false);
+function busy(f, on) { f.querySelectorAll('button[type=submit]').forEach(b => b.disabled = on); }
+document.addEventListener('submit', e => {
+  const f = e.target; if (!f.dataset.form) return;
+  e.preventDefault();
+  FORMS[f.dataset.form]?.(f);
+});
+
+/* ---------- actions ---------- */
+const SAMPLE = [
+  ['Lobi & resepsionis', 'Lantai 1', ['Sapu dan pel lantai', 'Lap meja resepsionis', 'Bersihkan kaca pintu masuk', 'Kosongkan tempat sampah']],
+  ['Toilet pria', 'Lantai 1', ['Sikat kloset dan urinoir', 'Pel lantai lalu keringkan', 'Isi ulang sabun dan tisu', 'Semprot pengharum ruangan', 'Kosongkan tempat sampah']],
+  ['Toilet wanita', 'Lantai 1', ['Sikat kloset dan wastafel', 'Pel lantai lalu keringkan', 'Isi ulang sabun dan tisu', 'Semprot pengharum ruangan', 'Kosongkan tempat sampah']],
+  ['Pantry', 'Lantai 2', ['Cuci peralatan makan dan gelas', 'Lap meja dan dispenser', 'Bersihkan bagian luar kulkas', 'Buang sampah organik']],
+  ['Ruang rapat', 'Lantai 2', ['Lap meja dan kursi', 'Rapikan posisi kursi', 'Bersihkan papan tulis', 'Sedot debu karpet']],
+  ['Area kerja staf', 'Lantai 2', ['Sapu dan pel lantai', 'Lap gagang pintu dan sakelar', 'Kosongkan tempat sampah di meja', 'Bersihkan jendela']]
+];
+const ACT = {
+  tab: d => setTab(d.tab),
+  close: () => closeModal(),
+  logout: () => { S.me = null; ss('kbr-user', null); S.tab = null; route(); },
+  work: d => openWork(d.area),
+  pw: () => openModal(`${sheetHead('Ganti password')}<form data-form="pw"><div class="sheet-b">
+      <div class="field"><label for="p-old">Password lama</label><input id="p-old" type="password" name="old" required></div>
+      <div class="field"><label for="p-new">Password baru</label><input id="p-new" type="password" name="pw" minlength="6" required></div>
+      <div class="field"><label for="p-new2">Ulangi password baru</label><input id="p-new2" type="password" name="pw2" minlength="6" required></div>
+    </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="submit">Ganti password</button></div></form>`),
+  zoom: d => {
+    const r = S.reports.find(x => x.id === d.rep); if (!r) return;
+    openModal(`${sheetHead(`${r.areaName}, foto ${d.which === 'before' ? 'sebelum' : 'sesudah'}`)}<div class="sheet-b zoom"><img src="${esc(imgSrc(r[d.which]))}" alt="Foto ${esc(r.areaName)}"><p class="muted">${esc(r.staffName)}, ${esc(fmtDate(r.date))} pukul ${fmtTime(r.submittedAt)}</p></div>`, true);
+  },
+  async approve(d) {
+    try { await S.db.doc('reports/' + d.rep).update({ status: 'disetujui', reviewedBy: me().name, reviewedAt: new Date().toISOString() }); toast('Laporan disetujui.'); }
+    catch (e) { toast(errMsg(e), 'bad'); }
+  },
+  revise: d => {
+    const r = S.reports.find(x => x.id === d.rep); if (!r) return;
+    openModal(`${sheetHead('Minta revisi')}<form data-form="revise" data-rep="${esc(r.id)}"><div class="sheet-b">
+      <p class="muted" style="margin-top:0">${esc(r.areaName)}, dikerjakan ${esc(r.staffName)}</p>
+      <div class="field"><label for="rv-note">Apa yang perlu diperbaiki?</label><textarea id="rv-note" name="note" required placeholder="Contoh: lantai dekat wastafel masih basah, mohon dikeringkan lalu foto ulang">${esc(r.managerNote || '')}</textarea></div>
+    </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn bad" type="submit">Kirim permintaan revisi</button></div></form>`);
+  },
+  areaForm: d => {
+    const a = d.area ? S.areas.find(x => x.id === d.area) : null;
+    const staff = staffList().filter(s => s.active !== false);
+    openModal(`${sheetHead(a ? 'Ubah area' : 'Tambah area')}<form data-form="area" ${a ? `data-area="${a.id}"` : ''}><div class="sheet-b">
+      <div class="field"><label for="a-name">Nama area</label><input id="a-name" type="text" name="name" value="${esc(a?.name || '')}" placeholder="Contoh: Toilet pria" required></div>
+      <div class="field"><label for="a-loc">Lokasi</label><input id="a-loc" type="text" name="location" value="${esc(a?.location || '')}" placeholder="Contoh: Lantai 1, sayap barat"></div>
+      <div class="field"><label for="a-items">Daftar tugas</label><textarea id="a-items" name="items" rows="6" required placeholder="Satu tugas per baris">${esc((a?.items || []).join('\n'))}</textarea><small>Tulis satu tugas per baris. Petugas mencentang tugas yang selesai.</small></div>
+      <div class="field"><span class="lbl">Petugas yang bertugas</span>
+        ${staff.length ? staff.map(s => `<label class="checkrow"><input type="checkbox" name="as" value="${esc(s.u)}" ${a?.assignees?.includes(s.u) ? 'checked' : ''}><span>${esc(s.name)}</span></label>`).join('') : '<p class="muted" style="margin:0">Belum ada akun petugas.</p>'}
+        <small>Biarkan kosong agar area ini muncul untuk semua petugas.</small></div>
+      <div class="field"><label for="a-act">Status</label><select id="a-act" name="active"><option value="on">Aktif</option><option value="off" ${a?.active === false ? 'selected' : ''}>Nonaktif (tidak dijadwalkan)</option></select></div>
+    </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="submit">${a ? 'Simpan perubahan' : 'Tambah area'}</button></div></form>`);
+  },
+  areaDel: d => {
+    const a = S.areas.find(x => x.id === d.area); if (!a) return;
+    openModal(`${sheetHead('Hapus area?')}<form data-form="confirmDel" data-area="${a.id}"><div class="sheet-b"><p style="margin-top:0">Area <b>${esc(a.name)}</b> akan dihapus dari jadwal. Laporan yang sudah dikirim untuk area ini tetap tersimpan.</p></div>
+      <div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn bad" type="submit">Hapus area</button></div></form>`);
+  },
+  async sampleAreas(d, b) {
+    b.disabled = true;
+    try {
+      let o = Date.now();
+      for (const [name, location, items] of SAMPLE) await S.db.collection('areas').doc().set({ name, location, items, assignees: [], active: true, order: o++ });
+      toast('Contoh area ditambahkan. Silakan sesuaikan.');
+    } catch (e) { toast(errMsg(e), 'bad'); b.disabled = false; }
+  },
+  userForm: d => {
+    const u = d.user, a = u ? S.accounts[u] : null;
+    openModal(`${sheetHead(a ? 'Ubah pengguna' : 'Tambah pengguna')}<form data-form="user" ${u ? `data-user="${esc(u)}"` : ''} autocomplete="off"><div class="sheet-b">
+      <div class="field"><label for="u-name">Nama lengkap</label><input id="u-name" type="text" name="name" value="${esc(a?.name || '')}" required></div>
+      <div class="field"><label for="u-user">Username</label><input id="u-user" type="text" name="username" value="${esc(u || '')}" autocapitalize="none" ${u ? 'disabled' : 'required'}><small>${u ? 'Username tidak bisa diubah.' : 'Huruf kecil, angka, titik, garis bawah.'}</small></div>
+      <div class="field"><label for="u-role">Peran</label><select id="u-role" name="role"><option value="staff">Petugas kebersihan</option><option value="manager" ${a?.role === 'manager' ? 'selected' : ''}>Manager</option></select></div>
+      <div class="field"><label for="u-pw">${a ? 'Password baru (kosongkan jika tidak diganti)' : 'Password'}</label><input id="u-pw" type="password" name="pw" autocomplete="new-password" ${a ? '' : 'required minlength="6"'}></div>
+    </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="submit">${a ? 'Simpan perubahan' : 'Buat akun'}</button></div></form>`);
+  },
+  async userToggle(d) {
+    const a = S.accounts[d.user]; if (!a) return;
+    if (a.active !== false && a.role === 'manager' && activeManagers().length <= 1) return toast('Harus ada minimal satu manager aktif.', 'bad');
+    try { await S.db.doc('accounts/' + d.user).update({ active: a.active === false }); toast(a.active === false ? 'Akun diaktifkan.' : 'Akun dinonaktifkan.'); }
+    catch (e) { toast(errMsg(e), 'bad'); }
+  },
+  async install() {
+    if (!installEvt) return toast('Buka menu ⋮ di Chrome lalu pilih "Instal aplikasi" atau "Tambahkan ke layar utama".');
+    installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null;
+  },
+  async seed(d, b) {
+    if (Object.keys(S.accounts).length) return toast('Data sudah ada.', 'bad');
+    b.disabled = true; b.textContent = 'Memasukkan data…';
+    try {
+      const batch = S.db.batch();
+      batch.set(S.db.doc('settings/app'), SEED.settings);
+      for (const [id, v] of Object.entries(SEED.accounts)) batch.set(S.db.doc('accounts/' + id), v);
+      for (const [id, v] of Object.entries(SEED.areas)) batch.set(S.db.doc('areas/' + id), v);
+      await batch.commit();
+      toast('Data berhasil dimasukkan. Silakan login.');
+    } catch (e) { toast(errMsg(e), 'bad'); b.disabled = false; b.textContent = 'Pakai data dari versi sebelumnya'; }
+  },
+  print: () => openPrint(),
+  closePrint: () => closePrint(),
+  doPrint: () => { try { window.print(); } catch (e) { toast('Cetak langsung tidak tersedia di sini. Gunakan tombol Unduh lalu cetak dari browser.', 'bad'); } },
+  download: (d, b) => downloadReport(b)
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  if (b.tagName === 'LABEL') return;
+  ACT[b.dataset.act]?.(b.dataset, b);
+});
+
+/* ---------- daily report ---------- */
+function reportData() {
+  const staff = isMgr() ? S.staffFilter : S.me;
+  const reps = S.reports.filter(r => !staff || r.username === staff)
+    .sort((a, b) => a.areaName.localeCompare(b.areaName) || (a.submittedAt || '').localeCompare(b.submittedAt || ''));
+  const areas = staff ? areasFor(staff) : activeAreas();
+  const missing = areas.filter(a => !reps.some(r => r.areaId === a.id));
+  return { staff, reps, areas, missing };
+}
+function reportHTML(srcMap) {
+  const { staff, reps, areas, missing } = reportData();
+  const src = ref => (srcMap && srcMap[ref]) || imgSrc(ref);
+  const stCls = { menunggu:'st-wait', disetujui:'st-ok', revisi:'st-bad' };
+  const approved = reps.filter(r => r.status === 'disetujui').length;
+  const reviewer = reps.find(r => r.reviewedBy)?.reviewedBy || (isMgr() ? me().name : '');
+  return `<div class="rpt">
+    <div class="rpt-h">
+      <div><h1>Laporan Kerja Harian Kebersihan</h1><p>${esc(S.settings.officeName || '')}${S.settings.address ? '<br>' + esc(S.settings.address) : ''}</p></div>
+      <div class="rpt-meta"><b>Tanggal</b><span>${esc(fmtDate(S.date))}</span><b>Petugas</b><span>${staff ? esc(nameOf(staff)) : 'Semua petugas'}</span><b>Dicetak</b><span>${esc(fmtStamp(new Date()))}</span></div>
+    </div>
+    <div class="rpt-sum">
+      <div><b>${areas.length}</b><span>Area dijadwalkan</span></div>
+      <div><b>${reps.length}</b><span>Laporan masuk</span></div>
+      <div><b>${approved}</b><span>Disetujui manager</span></div>
+      <div><b>${missing.length}</b><span>Belum dikerjakan</span></div>
+    </div>
+    <h2>Rincian pekerjaan</h2>
+    ${reps.length ? `<table><thead><tr><th>No</th><th>Area</th><th>Petugas</th><th>Jam</th><th>Tugas selesai</th><th>Status</th><th>Catatan</th></tr></thead><tbody>
+      ${reps.map((r, i) => {
+        const items = r.items || [], undone = items.filter(x => !x.done).map(x => x.t);
+        return `<tr><td>${i + 1}</td><td><b>${esc(r.areaName)}</b>${r.location ? '<br>' + esc(r.location) : ''}</td><td>${esc(r.staffName)}</td><td>${fmtTime(r.submittedAt)}</td>
+        <td>${items.filter(x => x.done).length}/${items.length}${undone.length ? '<br><small>Belum: ' + esc(undone.join(', ')) + '</small>' : ''}</td>
+        <td class="${stCls[r.status]}">${STATUS[r.status][0]}</td>
+        <td>${r.note ? 'Petugas: ' + esc(r.note) : ''}${r.note && r.managerNote ? '<br>' : ''}${r.managerNote ? 'Manager: ' + esc(r.managerNote) : ''}${!r.note && !r.managerNote ? '–' : ''}</td></tr>`;
+      }).join('')}</tbody></table>` : '<p>Tidak ada laporan pada tanggal ini.</p>'}
+    ${missing.length ? `<h2>Area belum dikerjakan</h2><ul class="miss">${missing.map(a => `<li>${esc(a.name)}${a.location ? ' (' + esc(a.location) + ')' : ''}</li>`).join('')}</ul>` : ''}
+    ${reps.length ? `<h2>Bukti foto</h2><div class="rpt-photos">${reps.map(r => `<figure>
+      <div class="pair">
+        <div>${r.before ? `<img src="${esc(src(r.before))}" alt="Sebelum">` : 'Tanpa foto sebelum'}</div>
+        <div>${r.after ? `<img src="${esc(src(r.after))}" alt="Sesudah">` : 'Tanpa foto sesudah'}</div>
+      </div>
+      <figcaption><b>${esc(r.areaName)}</b>Kiri: sebelum, kanan: sesudah. ${esc(r.staffName)}, ${fmtTime(r.submittedAt)}</figcaption>
+    </figure>`).join('')}</div>` : ''}
+    <div class="rpt-sign">
+      <div>Petugas kebersihan<div class="ln">${staff ? esc(nameOf(staff)) : '(..............................)'}</div></div>
+      <div>Diperiksa oleh<div class="ln">${reviewer ? esc(reviewer) : '(..............................)'}</div></div>
+    </div>
+    <p class="rpt-foot">Dibuat dari aplikasi Kebersihan Kantor. Foto bukti bercap tanggal dan jam pengambilan.</p>
+  </div>`;
+}
+function openPrint() {
+  if (!S.repLoaded) return toast('Laporan masih dimuat, coba sebentar lagi.');
+  const pr = $('#printRoot');
+  pr.innerHTML = `<div class="pr-bar">
+    <button class="btn sm" data-act="closePrint">✕ Tutup</button>
+    <h2>Pratinjau laporan, ${esc(fmtDate(S.date))}</h2>
+    <button class="btn sm" data-act="download" ${S.dl ? '' : 'hidden'}>${ICON.dl}Unduh (HTML)</button>
+    <button class="btn primary sm" data-act="doPrint">${ICON.print}Cetak</button>
+  </div><div class="pr-page">${reportHTML()}</div>`;
+  pr.hidden = false; pr.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closePrint() { const pr = $('#printRoot'); pr.hidden = true; pr.innerHTML = ''; document.body.style.overflow = ''; }
+async function downloadReport(btn) {
+  if (!S.dl) return toast('Unduhan tidak tersedia di tampilan ini.', 'bad');
+  btn.disabled = true; const old = btn.innerHTML; btn.textContent = 'Menyiapkan…';
+  try {
+    const map = {};
+    for (const r of reportData().reps) for (const ref of [r.before, r.after]) {
+      if (!ref || ref.startsWith('data:') || map[ref]) continue;
+      try {
+        const blob = await (await fetch('/_blob/' + ref)).blob();
+        map[ref] = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(''); fr.readAsDataURL(blob); });
+      } catch (e) {}
+    }
+    const html = `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Laporan kebersihan ${S.date}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#fff;color:#1a1a1a}.page{max-width:860px;margin:24px auto;padding:0 20px}@media print{@page{size:A4;margin:14mm}.page{margin:0;padding:0;max-width:none}}${RPT_CSS}</style></head>
+<body><div class="page">${reportHTML(map)}</div></body></html>`;
+    const who = isMgr() ? (S.staffFilter || 'semua') : S.me;
+    await S.dl.save({ filename: `laporan-kebersihan-${S.date}-${who}.html`, data: html });
+    toast('Laporan diunduh. Buka file lalu tekan Ctrl+P untuk mencetak atau simpan sebagai PDF.');
+  } catch (e) {
+    if (e?.code !== 'declined') toast(errMsg(e), 'bad');
+  }
+  btn.disabled = false; btn.innerHTML = old;
+}
+
+init();
+</script>
+</body>
+</html>
