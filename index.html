@@ -196,6 +196,26 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
 .checkrow{display:flex;gap:10px;align-items:start;padding:9px 10px;border-radius:10px;cursor:pointer}
 .checkrow:hover{background:var(--surface-2)}
 .checkrow input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--brand);flex:none}
+.task-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.task-row.done{border-color:var(--ok);background:var(--ok-bg)}
+.task-row .tt{font-weight:700}
+.task-row small{display:block;font-size:12.5px}
+.task-row .tthumb{width:60px;height:60px;border-radius:8px;object-fit:cover;display:block}
+.task-row .tact{display:flex;gap:8px;align-items:center}
+.task-row label.btn{position:relative}
+.touch .task-row{padding:12px 14px}
+.touch .task-row .tt{font-size:16px}
+.touch .task-row label.btn{padding:13px 16px;font-size:15.5px}
+.touch .task-row .tthumb{width:70px;height:70px}
+.task-prog{font-weight:700;margin:0 0 10px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:6px}
+.tph{margin:0}
+.tph .ph{aspect-ratio:1/1;border-radius:8px}
+.tph figcaption{font-size:12px;line-height:1.3;margin-top:4px}
+.tph figcaption.undone{color:var(--bad);font-weight:600}
+.lbl-sm{font-weight:700;font-size:13px}
+.desk .reps{grid-template-columns:1fr!important}
+@media (max-width:700px){.task-row{grid-template-columns:1fr}.task-row .tact{justify-content:space-between}.task-row label.btn{flex:1}}
 .picks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pick{display:block;border:2px dashed var(--line);border-radius:14px;overflow:hidden;cursor:pointer;background:var(--surface-2);text-align:center}
 .pick:hover{border-color:var(--brand)}
@@ -378,6 +398,14 @@ const RPT_CSS = `
 .rpt-sign{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:34px;text-align:center;break-inside:avoid;page-break-inside:avoid}
 .rpt-sign .ln{border-top:1px solid #333;margin-top:64px;padding-top:4px;font-weight:700}
 .rpt-foot{margin-top:18px;font-size:10.5px;color:#777}
+.rpt .rfig{margin:0 0 12px;border:1px solid #ccc;border-radius:6px;padding:8px;break-inside:avoid;page-break-inside:avoid}
+.rpt .rfig figcaption{font-size:11.5px}
+.rpt .rgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
+.rpt .rcell span{display:block;font-size:9.5px;line-height:1.25;margin-top:2px}
+.rpt .rcell span.x{color:#a33421;font-weight:700}
+.rpt .rimg{aspect-ratio:3/4;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:9px;color:#777;overflow:hidden;text-align:center}
+.rpt .rimg img{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width:600px){.rpt .rgrid{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:600px){.rpt-sum{grid-template-columns:1fr 1fr}.rpt-photos{grid-template-columns:1fr}}
 `;
 document.getElementById('rptStyle').textContent = RPT_CSS;
@@ -622,6 +650,7 @@ function renderContent() {
   if (ae && c.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) { S.pending = true; return; }
   S.pending = false;
   c.innerHTML = (VIEWS[S.tab] || (() => ''))();
+  if (S.tab === 'pantau' || S.tab === 'laporan') loadRepMedia(S.reports.filter(r => isMgr() || r.username === S.me));
 }
 document.addEventListener('focusout', () => setTimeout(() => { if (S.pending) renderContent(); }, 60));
 
@@ -631,14 +660,38 @@ const areasFor = u => activeAreas().filter(a => !a.assignees?.length || a.assign
 const repFor = (areaId, u) => S.reports.find(r => r.areaId === areaId && r.username === u);
 const loadingBlock = () => `<div class="loading" style="min-height:30vh"><div><div class="spin"></div>Memuat laporan…</div></div>`;
 
+/* foto laporan baru disimpan per foto di koleksi rphotos (rphotos/{laporan}__{kunci}) */
+const PHC = {};
+function repMedia(r) {
+  if (!r.media) return { before: r.before ? imgSrc(r.before) : null, after: r.after ? imgSrc(r.after) : null };
+  const c = PHC[r.id]; return c && c.ver === r.submittedAt && c.data ? c.data : null;
+}
+async function loadRepMedia(list) {
+  const need = list.filter(r => r.media && !(PHC[r.id] && PHC[r.id].ver === r.submittedAt));
+  if (!need.length) return;
+  need.forEach(r => { PHC[r.id] = { ver: r.submittedAt, data: null }; });
+  await Promise.all(need.map(async r => {
+    const data = {};
+    await Promise.all((r.photoKeys || []).map(async k => { try { const snap = await S.db.doc(`rphotos/${r.id}__${k}`).get(); if (snap.exists) data[k] = snap.data().d; } catch (e) {} }));
+    PHC[r.id] = { ver: r.submittedAt, data };
+  }));
+  renderContent();
+}
 function photo(r, which) {
-  const label = which === 'before' ? 'Sebelum' : 'Sesudah';
-  return r[which]
-    ? `<button class="ph" data-act="zoom" data-rep="${esc(r.id)}" data-which="${which}" aria-label="Perbesar foto ${label.toLowerCase()}"><img src="${esc(imgSrc(r[which]))}" alt="Foto ${label.toLowerCase()} ${esc(r.areaName)}" loading="lazy"><span>${label}</span></button>`
+  const label = which === 'before' ? 'Sebelum' : 'Sesudah', m = repMedia(r), src = m ? m[which] : null;
+  if (!m) return `<div class="ph none"><span>Memuat foto…</span></div>`;
+  return src
+    ? `<button class="ph" data-act="zoom" data-rep="${esc(r.id)}" data-which="${which}" aria-label="Perbesar foto ${label.toLowerCase()}"><img src="${esc(src)}" alt="Foto ${label.toLowerCase()} ${esc(r.areaName)}" loading="lazy"><span>${label}</span></button>`
     : `<div class="ph none"><span>Tanpa foto ${label.toLowerCase()}</span></div>`;
 }
 function checklist(items) {
   return `<ul class="checks">${(items || []).map(i => `<li class="${i.done ? 'y' : 'n'}">${esc(i.t)}</li>`).join('')}</ul>`;
+}
+function taskGrid(r) {
+  const m = repMedia(r);
+  return `<div class="tgrid">${(r.items || []).map((it, k) => { const src = m && m['t' + k];
+    return `<figure class="tph">${src ? `<button class="ph" data-act="zoom" data-rep="${esc(r.id)}" data-which="t${k}" aria-label="Perbesar foto ${esc(it.t)}"><img src="${esc(src)}" alt="Foto ${esc(it.t)}" loading="lazy"></button>` : `<div class="ph none"><span>${!m ? 'Memuat…' : 'Tidak ada foto'}</span></div>`}
+      <figcaption class="${it.done ? '' : 'undone'}">${it.done ? '✓' : '✗'} ${esc(it.t)}</figcaption></figure>`; }).join('')}</div>`;
 }
 function repCard(r, mgr) {
   const done = (r.items || []).filter(i => i.done).length, total = (r.items || []).length;
@@ -647,7 +700,7 @@ function repCard(r, mgr) {
     <div class="rep-body">
       <div class="rep-head"><div><h3>${esc(r.areaName)}</h3>${r.location ? `<p class="meta">${esc(r.location)}</p>` : ''}</div>${chip(r.status)}</div>
       <p class="meta"><span>${esc(r.staffName)}</span><span>Dikirim ${fmtTime(r.submittedAt)}</span><span>${done} dari ${total} tugas selesai</span></p>
-      <details><summary>Rincian tugas</summary>${checklist(r.items)}</details>
+      ${r.media ? `<div><span class="lbl-sm">Foto bukti per tugas</span>${taskGrid(r)}</div>` : `<details><summary>Rincian tugas</summary>${checklist(r.items)}</details>`}
       ${r.note ? `<p class="note"><b>Catatan petugas:</b> ${esc(r.note)}</p>` : ''}
       ${r.managerNote ? `<p class="note${r.status === 'revisi' ? ' bad' : ''}"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
       ${r.reviewedBy ? `<p class="meta"><span>Diperiksa ${esc(r.reviewedBy)}, ${fmtTime(r.reviewedAt)}</span></p>` : ''}
@@ -803,7 +856,7 @@ async function toCanvas(file, max, stamp) {
     return c;
   } finally { URL.revokeObjectURL(url); }
 }
-async function storePhoto(file, stamp) {
+async function storePhoto(file, stamp, max0, limit) {
   if (S.assets) {
     try {
       const c = await toCanvas(file, 1600, stamp);
@@ -814,10 +867,10 @@ async function storePhoto(file, stamp) {
       if (!['not_granted', 'capability_disabled', 'capability_removed', 'unsupported_type'].includes(e?.code)) throw e;
     }
   }
-  let max = 1100, q = 0.68, d = '';
+  let max = max0 || 1100, q = 0.68, d = ''; limit = limit || 160000;
   for (let i = 0; i < 6; i++) {
     const c = await toCanvas(file, max, stamp); d = c.toDataURL('image/jpeg', q);
-    if (d.length < 190000) return d;
+    if (d.length < limit) return d;
     max = Math.round(max * 0.82); q = Math.max(0.4, q - 0.05);
   }
   return d;
@@ -828,47 +881,69 @@ let W = null;
 function slotHTML(which, src, locked) {
   const L = which === 'before' ? 'sebelum' : 'sesudah';
   if (locked) return src ? `<div class="shot"><img src="${esc(src)}" alt="Foto ${L}"></div>` : `<p class="muted" style="margin:0">Tanpa foto ${L}</p>`;
-  if (!src) return `<label class="cam"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}<span>Ambil foto ${L}</span><small>${which === 'after' ? 'Wajib, sebagai bukti hasil kerja' : 'Dianjurkan, kondisi sebelum dibersihkan'}</small></label>
-    <label class="gal"><input type="file" accept="image/*" data-ph="${which}" class="sr">atau pilih dari galeri</label>`;
+  if (!src) return `<label class="cam"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}<span>Ambil foto ${L}</span><small>${which === 'after' ? 'Dianjurkan: kondisi keseluruhan setelah selesai' : 'Dianjurkan: kondisi sebelum dibersihkan'}</small></label>`;
   return `<div class="shot"><img src="${esc(src)}" alt="Foto ${L}"><span class="shot-ok">✓ Foto ${L} siap</span></div>
-    <div class="shot-acts"><label class="btn"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}Foto ulang</label><label class="btn"><input type="file" accept="image/*" data-ph="${which}" class="sr">Dari galeri</label></div>`;
+    <div class="shot-acts"><label class="btn"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}Foto ulang</label></div>`;
 }
-function openWork(areaId) {
+function taskRowHTML(k, t, src, locked) {
+  if (locked) return `<div class="task-row ${src ? 'done' : ''}"><div><div class="tt">${src ? '✓ ' : '✗ '}${esc(t)}</div></div>${src ? `<img class="tthumb" src="${esc(src)}" alt="Foto ${esc(t)}">` : ''}</div>`;
+  return `<div class="task-row ${src ? 'done' : ''}" id="task-${k}"><div><div class="tt">${src ? '✓ ' : ''}${esc(t)}</div><small class="muted">${src ? 'Foto bukti tersimpan' : 'Kerjakan, lalu foto hasilnya'}</small></div>
+    <div class="tact">${src ? `<img class="tthumb" src="${esc(src)}" alt="Foto ${esc(t)}">` : ''}<label class="btn ${src ? '' : 'primary'}"><input type="file" accept="image/*" capture="environment" data-task="${k}" class="sr">${ICON.cam}${src ? 'Ulang' : 'Foto'}</label></div></div>`;
+}
+function taskProg() {
+  const n = W.items.length, d = W.items.filter((t, k) => W.src['t' + k]).length;
+  const el = $('#task-prog'); if (el) el.textContent = `${d} dari ${n} tugas sudah difoto`;
+  const sn = $('#sn-items'); if (sn) { sn.classList.toggle('done', n && d === n); sn.textContent = n && d === n ? '✓' : '2'; }
+}
+async function openWork(areaId) {
   const a = S.areas.find(x => x.id === areaId); if (!a) return;
   const r = repFor(areaId, S.me);
   const locked = (r && r.status === 'disetujui') || S.readOnly || S.date !== today();
-  W = { areaId, before: r?.before || null, after: r?.after || null, newBefore: null, newAfter: null };
-  const items = (a.items || []).map(t => ({ t, done: r ? !!(r.items || []).find(x => x.t === t)?.done : false }));
+  if (r && r.media) await loadRepMedia([r]);
+  const m = r ? (repMedia(r) || {}) : {};
+  const items = a.items || [];
+  W = { areaId, items, legacy: !!(r && !r.media), src: {}, files: {}, ages: {} };
+  // foto yang sudah ada (laporan revisi): pakai lagi kecuali diganti
+  if (m.before) W.src.before = m.before; if (m.after) W.src.after = m.after;
+  items.forEach((t, k) => { const ok = r ? (r.items || []).find(x => x.t === t) : null; const key = r && r.media && ok ? 't' + (r.items || []).indexOf(ok) : null; if (key && m[key]) W.src['t' + k] = m[key]; });
   const step = (n, id, title, body, done) => `<div class="step"><div class="step-n${done ? ' done' : ''}" id="${id}">${done ? '✓' : n}</div><div><h3>${title}</h3>${body}</div></div>`;
   openModal(`${sheetHead(a.name)}
     <form data-form="work"><div class="sheet-b">
       <p class="muted" style="margin:0 0 14px">${a.location ? esc(a.location) + '. ' : ''}${esc(fmtDate(today()))}</p>
       ${r ? `<p style="margin:0 0 12px">${chip(r.status)}</p>` : ''}
       ${r?.status === 'revisi' && r.managerNote ? `<p class="note bad" style="margin-bottom:16px"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
-      ${step(1, 'sn-before', 'Foto sebelum dibersihkan', `<div id="slot-before">${slotHTML('before', imgSrc(W.before), locked)}</div>`, !!W.before)}
-      ${step(2, 'sn-items', 'Kerjakan dan centang tugas', locked ? checklist(items) : items.map((i, k) => `<label class="checkrow"><input type="checkbox" name="it${k}" ${i.done ? 'checked' : ''}><span>${esc(i.t)}</span></label>`).join(''), items.length && items.every(i => i.done))}
-      ${step(3, 'sn-after', 'Foto sesudah dibersihkan', `<div id="slot-after">${slotHTML('after', imgSrc(W.after), locked)}</div>`, !!W.after)}
-      ${step(4, 'sn-note', 'Catatan (opsional)', `<textarea id="w-note" name="note" ${locked ? 'disabled' : ''} placeholder="Contoh: sabun cuci tangan habis, perlu restok">${esc(r?.note || '')}</textarea>`, false)}
-      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Tanggal, jam, nama area, dan nama Anda dicap otomatis pada setiap foto.</p>'}
+      ${step(1, 'sn-before', 'Foto sebelum dibersihkan', `<div id="slot-before">${slotHTML('before', W.src.before, locked)}</div>`, !!W.src.before)}
+      ${step(2, 'sn-items', 'Kerjakan dan foto setiap tugas', `<p class="task-prog" id="task-prog"></p>${items.map((t, k) => `<div id="trow-${k}">${taskRowHTML(k, t, W.src['t' + k], locked)}</div>`).join('')}`, false)}
+      ${step(3, 'sn-after', 'Foto sesudah (keseluruhan)', `<div id="slot-after">${slotHTML('after', W.src.after, locked)}</div>`, !!W.src.after)}
+      ${step(4, 'sn-note', 'Catatan', `<textarea id="w-note" name="note" ${locked ? 'disabled' : ''} placeholder="Wajib diisi jika ada tugas yang tidak dikerjakan. Contoh: sabun cuci tangan habis, perlu restok">${esc(r?.note || '')}</textarea>`, false)}
+      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Foto hanya dari kamera. Nama tugas, area, tanggal, jam, dan nama Anda dicap otomatis pada setiap foto.</p>'}
     </div>
     <div class="sheet-f"><button class="btn" type="button" data-act="close">${locked ? 'Tutup' : 'Batal'}</button>
       ${locked ? '' : `<button class="btn primary" type="submit" id="w-submit">${r ? 'Kirim ulang laporan' : 'Kirim laporan'}</button>`}</div>
     </form>`);
+  taskProg();
+}
+function freshOk(f) {
+  const age = Math.max(0, Math.round((Date.now() - (f.lastModified || Date.now())) / 1000));
+  if (age > 120) { toast('Foto harus diambil langsung dengan kamera saat ini. Foto lama tidak diterima.', 'bad'); return null; }
+  return age;
 }
 document.addEventListener('change', e => {
   const t = e.target;
-  if (t.dataset.ph && W) {
+  if ((t.dataset.ph || t.dataset.task) && W) {
     const f = t.files && t.files[0]; if (!f) return;
     if (f.type && !/^image\//.test(f.type)) { toast('File harus berupa foto.', 'bad'); return; }
-    const which = t.dataset.ph;
-    W[which === 'before' ? 'newBefore' : 'newAfter'] = f;
-    $('#slot-' + which).innerHTML = slotHTML(which, URL.createObjectURL(f), false);
-    const sn = $('#sn-' + which); if (sn) { sn.classList.add('done'); sn.textContent = '✓'; }
-    if (which === 'before') setTimeout(() => $('#sn-items')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-  }
-  if (/^it\d+$/.test(t.name || '') && W) {
-    const boxes = [...document.querySelectorAll('#modal input[name^=it]')];
-    const sn = $('#sn-items'); if (sn) { const all = boxes.length && boxes.every(x => x.checked); sn.classList.toggle('done', all); sn.textContent = all ? '✓' : '2'; }
+    const age = freshOk(f); if (age == null) return;
+    const url = URL.createObjectURL(f);
+    if (t.dataset.ph) {
+      const which = t.dataset.ph; W.files[which] = f; W.ages[which] = age; W.src[which] = url;
+      $('#slot-' + which).innerHTML = slotHTML(which, url, false);
+      const sn = $('#sn-' + which); if (sn) { sn.classList.add('done'); sn.textContent = '✓'; }
+      if (which === 'before') setTimeout(() => $('#sn-items')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+    } else {
+      const k = +t.dataset.task, key = 't' + k; W.files[key] = f; W.ages[key] = age; W.src[key] = url;
+      $('#trow-' + k).innerHTML = taskRowHTML(k, W.items[k], url, false); taskProg();
+    }
   }
   if (t.dataset.change === 'date') { setDate(t.value || today()); t.blur(); }
   if (t.dataset.change === 'staff') { S.staffFilter = t.value; t.blur(); renderContent(); }
@@ -899,21 +974,34 @@ const FORMS = {
   async work(f) {
     if (!W) return;
     const a = S.areas.find(x => x.id === W.areaId); if (!a) return;
-    if (!W.after && !W.newAfter) return toast('Foto sesudah dibersihkan wajib dilampirkan.', 'bad');
-    const fd = new FormData(f);
-    const items = (a.items || []).map((t, k) => ({ t, done: fd.get('it' + k) === 'on' }));
-    const btn = $('#w-submit'); btn.disabled = true; btn.textContent = 'Mengunggah foto…';
+    const fd = new FormData(f), note = (fd.get('note') || '').trim();
+    const items = W.items.map((t, k) => ({ t, done: !!W.src['t' + k] }));
+    const nDone = items.filter(i => i.done).length;
+    if (!nDone) return toast('Foto minimal satu tugas yang sudah dikerjakan.', 'bad');
+    if (nDone < items.length && !note) return toast('Ada tugas yang belum difoto. Tulis alasannya di kolom Catatan.', 'bad');
+    const btn = $('#w-submit'); btn.disabled = true; btn.textContent = 'Memproses foto…';
     try {
-      const date = today(), stampBase = `${a.name}  |  ${fmtStamp(new Date())}  |  ${me().name}`;
-      const w = W;
-      const before = w.newBefore ? await storePhoto(w.newBefore, 'SEBELUM  |  ' + stampBase) : w.before;
-      const after = w.newAfter ? await storePhoto(w.newAfter, 'SESUDAH  |  ' + stampBase) : w.after;
+      const date = today(), rid = `${date}_${a.id}_${S.me}`, now = new Date();
+      const base = `${a.name}  |  ${fmtStamp(now)}  |  ${me().name}`;
+      const b = S.db.batch(), keys = [];
+      const put = (key, d) => { b.set(S.db.doc(`rphotos/${rid}__${key}`), { d, rid, key }); };
+      for (const key of ['before', 'after', ...items.map((x, k) => 't' + k)]) {
+        if (!W.src[key]) continue;
+        keys.push(key);
+        const file = W.files[key];
+        if (file) {
+          const label = key === 'before' ? 'SEBELUM' : key === 'after' ? 'SESUDAH' : 'TUGAS: ' + W.items[+key.slice(1)];
+          btn.textContent = `Memproses foto ${keys.length}…`;
+          put(key, await storePhoto(file, `${label}  |  ${base}`, key.startsWith('t') ? 900 : 1100, key.startsWith('t') ? 110000 : 150000));
+        } else if (W.src[key].startsWith('data:')) put(key, W.src[key]);
+      }
       btn.textContent = 'Menyimpan laporan…';
-      await S.db.doc(`reports/${date}_${a.id}_${S.me}`).set({
+      b.set(S.db.doc('reports/' + rid), {
         date, areaId: a.id, areaName: a.name, location: a.location || '', username: S.me, staffName: me().name,
-        items, before: before || null, after: after || null, note: (fd.get('note') || '').trim(),
-        submittedAt: new Date().toISOString(), status: 'menunggu', managerNote: '', reviewedBy: '', reviewedAt: null
+        items, media: true, photoKeys: keys, before: null, after: null, note,
+        photoAges: W.ages, submittedAt: now.toISOString(), status: 'menunggu', managerNote: '', reviewedBy: '', reviewedAt: null
       });
+      await b.commit();
       closeModal(); toast('Laporan terkirim ke manager.');
     } catch (e) { toast(errMsg(e), 'bad'); btn.disabled = false; btn.textContent = 'Kirim laporan'; }
   },
@@ -1016,7 +1104,9 @@ const ACT = {
     </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="submit">Ganti password</button></div></form>`),
   zoom: d => {
     const r = S.reports.find(x => x.id === d.rep); if (!r) return;
-    openModal(`${sheetHead(`${r.areaName}, foto ${d.which === 'before' ? 'sebelum' : 'sesudah'}`)}<div class="sheet-b zoom"><img src="${esc(imgSrc(r[d.which]))}" alt="Foto ${esc(r.areaName)}"><p class="muted">${esc(r.staffName)}, ${esc(fmtDate(r.date))} pukul ${fmtTime(r.submittedAt)}</p></div>`, true);
+    const src = (repMedia(r) || {})[d.which]; if (!src) return;
+    const label = d.which === 'before' ? 'foto sebelum' : d.which === 'after' ? 'foto sesudah' : 'tugas: ' + ((r.items || [])[+d.which.slice(1)]?.t || '');
+    openModal(`${sheetHead(`${r.areaName}, ${label}`)}<div class="sheet-b zoom"><img src="${esc(src)}" alt="Foto ${esc(r.areaName)}"><p class="muted">${esc(r.staffName)}, ${esc(fmtDate(r.date))} pukul ${fmtTime(r.submittedAt)}</p></div>`, true);
   },
   async approve(d) {
     try { await S.db.doc('reports/' + d.rep).update({ status: 'disetujui', reviewedBy: me().name, reviewedAt: new Date().toISOString() }); toast('Laporan disetujui.'); }
@@ -1142,13 +1232,9 @@ function reportHTML(srcMap) {
         <td>${r.note ? 'Petugas: ' + esc(r.note) : ''}${r.note && r.managerNote ? '<br>' : ''}${r.managerNote ? 'Manager: ' + esc(r.managerNote) : ''}${!r.note && !r.managerNote ? '–' : ''}</td></tr>`;
       }).join('')}</tbody></table>` : '<p>Tidak ada laporan pada tanggal ini.</p>'}
     ${missing.length ? `<h2>Area belum dikerjakan</h2><ul class="miss">${missing.map(a => `<li>${esc(a.name)}${a.location ? ' (' + esc(a.location) + ')' : ''}</li>`).join('')}</ul>` : ''}
-    ${reps.length ? `<h2>Bukti foto</h2><div class="rpt-photos">${reps.map(r => `<figure>
-      <div class="pair">
-        <div>${r.before ? `<img src="${esc(src(r.before))}" alt="Sebelum">` : 'Tanpa foto sebelum'}</div>
-        <div>${r.after ? `<img src="${esc(src(r.after))}" alt="Sesudah">` : 'Tanpa foto sesudah'}</div>
-      </div>
-      <figcaption><b>${esc(r.areaName)}</b>Kiri: sebelum, kanan: sesudah. ${esc(r.staffName)}, ${fmtTime(r.submittedAt)}</figcaption>
-    </figure>`).join('')}</div>` : ''}
+    ${reps.length ? `<h2>Bukti foto</h2>${reps.map(r => { const m = repMedia(r) || {}; const cell = (img, cap, x) => `<div class="rcell"><div class="rimg">${img ? `<img src="${esc(src(img))}" alt="">` : 'Tanpa foto'}</div><span class="${x ? 'x' : ''}">${cap}</span></div>`;
+      return `<figure class="rfig"><figcaption><b>${esc(r.areaName)}</b>, ${esc(r.staffName)}, ${fmtTime(r.submittedAt)}</figcaption><div class="rgrid">
+        ${cell(m.before, 'Sebelum')}${cell(m.after, 'Sesudah')}${r.media ? (r.items || []).map((it, k) => cell(m['t' + k], (it.done ? '✓ ' : '✗ ') + esc(it.t), !it.done)).join('') : ''}</div></figure>`; }).join('')}` : ''}
     <div class="rpt-sign">
       <div>Petugas kebersihan<div class="ln">${staff ? esc(nameOf(staff)) : '(..............................)'}</div></div>
       <div>Diperiksa oleh<div class="ln">${reviewer ? esc(reviewer) : '(..............................)'}</div></div>
@@ -1156,8 +1242,9 @@ function reportHTML(srcMap) {
     <p class="rpt-foot">Dibuat dari aplikasi Kebersihan Kantor. Foto bukti bercap tanggal dan jam pengambilan.</p>
   </div>`;
 }
-function openPrint() {
+async function openPrint() {
   if (!S.repLoaded) return toast('Laporan masih dimuat, coba sebentar lagi.');
+  toast('Menyiapkan laporan dan foto…'); await loadRepMedia(reportData().reps);
   const pr = $('#printRoot');
   pr.innerHTML = `<div class="pr-bar">
     <button class="btn sm" data-act="closePrint">✕ Tutup</button>
@@ -1174,7 +1261,7 @@ async function downloadReport(btn) {
   btn.disabled = true; const old = btn.innerHTML; btn.textContent = 'Menyiapkan…';
   try {
     const map = {};
-    for (const r of reportData().reps) for (const ref of [r.before, r.after]) {
+    for (const r of reportData().reps) for (const ref of (r.media ? [] : [r.before, r.after])) {
       if (!ref || ref.startsWith('data:') || map[ref]) continue;
       try {
         const blob = await (await fetch('/_blob/' + ref)).blob();

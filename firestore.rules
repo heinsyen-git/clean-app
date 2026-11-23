@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{col}/{id} {
-      allow read, write: if col in ['settings', 'accounts', 'areas', 'reports'];
+      allow read, write: if col in ['settings', 'accounts', 'areas', 'reports', 'rphotos'];
     }
   }
 }
