@@ -742,11 +742,11 @@ const VIEWS = {
     return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Nama</th><th>Username</th><th>Peran</th><th>Status</th><th></th></tr></thead><tbody>
       ${rows.map(([u, a]) => `<tr>
         <td><b>${esc(a.name)}</b>${u === S.me ? ' <span class="muted">(Anda)</span>' : ''}</td>
-        <td>${esc(u)}</td><td>${ROLE[a.role]}</td>
-        <td>${a.active === false ? '<span class="chip idle">Nonaktif</span>' : '<span class="chip ok">Aktif</span>'}</td>
+        <td>${esc(u)}</td><td>${u === ownerU() ? 'Admin utama' : ROLE[a.role]}</td>
+        <td>${a.active === false ? '<span class="chip idle">Nonaktif</span>' : '<span class="chip ok">Aktif</span>'}${u === ownerU() ? ' <span class="chip wait">🔒 Dilindungi</span>' : ''}</td>
         <td style="text-align:right;white-space:nowrap">
-          <button class="btn sm" data-act="userForm" data-user="${esc(u)}">Ubah</button>
-          ${u !== S.me ? `<button class="btn sm" data-act="userToggle" data-user="${esc(u)}">${a.active === false ? 'Aktifkan' : 'Nonaktifkan'}</button>` : ''}
+          ${u === ownerU() && u !== S.me ? '<span class="muted" style="font-size:13px">Hanya bisa diubah pemiliknya</span>' : `<button class="btn sm" data-act="userForm" data-user="${esc(u)}">Ubah</button>`}
+          ${u !== S.me && u !== ownerU() ? `<button class="btn sm" data-act="userToggle" data-user="${esc(u)}">${a.active === false ? 'Aktifkan' : 'Nonaktifkan'}</button>` : ''}
         </td></tr>`).join('')}
     </tbody></table></div>
     <p class="muted" style="font-size:13px;margin-top:12px">Petugas masuk dengan username dan password dari sini. Bagikan link aplikasi ke petugas. Di HP Android, buka link di Chrome lalu tekan Pasang aplikasi.</p>`;
@@ -759,6 +759,11 @@ const VIEWS = {
         <div class="field"><label for="st-loc">Alamat atau lokasi (opsional)</label><input id="st-loc" type="text" name="address" value="${esc(S.settings.address || '')}"></div>
         <button class="btn primary" type="submit">Simpan pengaturan</button>
       </form>
+    </div>
+    <div class="card" style="max-width:560px;margin-top:14px">
+      <h3>Admin utama</h3>
+      ${ownerU() ? `<p class="loc">Admin utama: <b>${esc(S.accounts[ownerU()]?.name || ownerU())}</b> (${esc(ownerU())}). Akun ini tidak bisa diubah, dinonaktifkan, atau diganti password-nya oleh manager lain.</p>`
+        : `<p class="loc">Admin utama belum ditetapkan. Admin utama adalah akun manager yang dilindungi dari perubahan oleh manager lain.</p><button class="btn primary" data-act="claimOwner">Jadikan saya Admin utama</button>`}
     </div>
     <div class="card" style="max-width:560px;margin-top:14px">
       <h3>Penyimpanan foto</h3>
@@ -879,7 +884,7 @@ const FORMS = {
     if (v.pw !== v.pw2) return toast('Kedua password tidak sama.', 'bad');
     busy(f, true);
     try {
-      await S.db.doc('settings/app').set({ officeName: v.office.trim(), address: '' });
+      await S.db.doc('settings/app').set({ officeName: v.office.trim(), address: '', owner: u });
       await S.db.doc('accounts/' + u).set({ name: v.name.trim(), role: 'manager', pass: await hashPw(u, v.pw), active: true, createdAt: new Date().toISOString() });
       S.me = u; ss('kbr-user', u); toast('Akun manager dibuat. Selamat datang!');
     } catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
@@ -938,6 +943,7 @@ const FORMS = {
     const v = Object.fromEntries(new FormData(f));
     const edit = f.dataset.user;
     const u = edit || v.username.trim().toLowerCase();
+    if (edit && edit === ownerU()) { if (S.me !== edit) return toast(OWNER_MSG, 'bad'); v.role = 'manager'; }
     if (!edit) {
       if (!/^[a-z0-9._]{3,30}$/.test(u)) return toast('Username hanya boleh huruf kecil, angka, titik, dan garis bawah (3–30 karakter).', 'bad');
       if (S.accounts[u]) return toast('Username sudah dipakai.', 'bad');
@@ -979,6 +985,8 @@ const FORMS = {
     catch (e) { toast(errMsg(e), 'bad'); busy(f, false); }
   }
 };
+const ownerU = () => S.settings.owner || null;
+const OWNER_MSG = 'Akun Admin utama dilindungi dan hanya bisa diubah oleh pemiliknya sendiri.';
 const activeManagers = () => Object.values(S.accounts).filter(a => a.role === 'manager' && a.active !== false);
 function busy(f, on) { f.querySelectorAll('button[type=submit]').forEach(b => b.disabled = on); }
 document.addEventListener('submit', e => {
@@ -1049,18 +1057,27 @@ const ACT = {
   },
   userForm: d => {
     const u = d.user, a = u ? S.accounts[u] : null;
+    if (u && u === ownerU() && u !== S.me) return toast(OWNER_MSG, 'bad');
+    const own = u && u === ownerU();
     openModal(`${sheetHead(a ? 'Ubah pengguna' : 'Tambah pengguna')}<form data-form="user" ${u ? `data-user="${esc(u)}"` : ''} autocomplete="off"><div class="sheet-b">
       <div class="field"><label for="u-name">Nama lengkap</label><input id="u-name" type="text" name="name" value="${esc(a?.name || '')}" required></div>
       <div class="field"><label for="u-user">Username</label><input id="u-user" type="text" name="username" value="${esc(u || '')}" autocapitalize="none" ${u ? 'disabled' : 'required'}><small>${u ? 'Username tidak bisa diubah.' : 'Huruf kecil, angka, titik, garis bawah.'}</small></div>
-      <div class="field"><label for="u-role">Peran</label><select id="u-role" name="role"><option value="staff">Petugas kebersihan</option><option value="manager" ${a?.role === 'manager' ? 'selected' : ''}>Manager</option></select></div>
+      ${own ? '<p class="muted" style="margin-top:0">Peran Admin utama tetap Manager.</p><input type="hidden" name="role" value="manager">' : `<div class="field"><label for="u-role">Peran</label><select id="u-role" name="role"><option value="staff">Petugas kebersihan</option><option value="manager" ${a?.role === 'manager' ? 'selected' : ''}>Manager</option></select></div>`}
       <div class="field"><label for="u-pw">${a ? 'Password baru (kosongkan jika tidak diganti)' : 'Password'}</label><input id="u-pw" type="password" name="pw" autocomplete="new-password" ${a ? '' : 'required minlength="6"'}></div>
     </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="submit">${a ? 'Simpan perubahan' : 'Buat akun'}</button></div></form>`);
   },
   async userToggle(d) {
     const a = S.accounts[d.user]; if (!a) return;
+    if (d.user === ownerU()) return toast(OWNER_MSG, 'bad');
     if (a.active !== false && a.role === 'manager' && activeManagers().length <= 1) return toast('Harus ada minimal satu manager aktif.', 'bad');
     try { await S.db.doc('accounts/' + d.user).update({ active: a.active === false }); toast(a.active === false ? 'Akun diaktifkan.' : 'Akun dinonaktifkan.'); }
     catch (e) { toast(errMsg(e), 'bad'); }
+  },
+  async claimOwner(d, b) {
+    if (!isMgr() || ownerU()) return;
+    b.disabled = true;
+    try { await S.db.doc('settings/app').set({ ...S.settings, owner: S.me }); toast('Anda sekarang Admin utama.'); }
+    catch (e) { toast(errMsg(e), 'bad'); b.disabled = false; }
   },
   async install() {
     if (!installEvt) return toast('Buka menu ⋮ di Chrome lalu pilih "Instal aplikasi" atau "Tambahkan ke layar utama".');
