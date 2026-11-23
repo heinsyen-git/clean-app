@@ -1281,6 +1281,40 @@ async function downloadReport(btn) {
   btn.disabled = false; btn.innerHTML = old;
 }
 
+
+/* ---------- tombol Kembali (Back) di HP ---------- */
+(function () {
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (!standalone && !TOUCH.matches) return;
+  let armed = false, exiting = false;
+  const st = document.createElement('style');
+  st.textContent = '#modal .sheet.mini{left:50%!important;top:auto!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;transform:translateX(-50%)!important;width:min(420px,calc(100vw - 24px))!important;height:auto!important;max-height:none!important;border-radius:18px!important}#modal .sheet.mini .sheet-h{padding-top:18px!important;border-bottom:0!important}#modal .sheet.mini .sheet-f{padding-bottom:18px!important}';
+  document.head.appendChild(st);
+  // Chrome hanya menghormati riwayat yang dibuat setelah interaksi pengguna, jadi "jebakan" Back dipasang saat layar disentuh
+  const arm = () => { if (armed) return; try { history.pushState({ kb: Date.now() }, ''); armed = true; } catch (e) {} };
+  ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, arm, true));
+  const homeTab = () => isMgr() ? 'pantau' : 'tugas';
+  const exitHTML = () => `${sheetHead('Keluar dari aplikasi?')}<div class="sheet-b"><p style="margin-top:0">Tekan <b>Kembali</b> sekali lagi atau tombol <b>Keluar</b> untuk menutup aplikasi. Anda tetap dalam keadaan login.</p></div>
+    <div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="button" data-act="exitApp">Keluar</button></div>`;
+  window.addEventListener('popstate', () => {
+    armed = false;
+    if (exiting) { exiting = false; return; }
+    if (!$('#printRoot').hidden) { closePrint(); return arm(); }
+    const m = $('#modal');
+    if (m.classList.contains('open')) { const wasExit = m.dataset.exit; closeModal(); if (!wasExit) arm(); return; }
+    if (S.screen && S.screen.startsWith('app') && S.tab && S.tab !== homeTab()) { setTab(homeTab()); return arm(); }
+    openModal(exitHTML()); m.dataset.exit = '1'; m.querySelector('.sheet')?.classList.add('mini');
+  });
+  const baseClose = closeModal;
+  closeModal = function () { baseClose.apply(this, arguments); delete $('#modal').dataset.exit; };
+  ACT.exitApp = () => {
+    closeModal();
+    if (armed) { exiting = true; armed = false; history.back(); }
+    try { window.close(); } catch (e) {}
+    setTimeout(() => toast('Tekan tombol Kembali sekali lagi untuk keluar.'), 300);
+  };
+})();
+
 init();
 </script>
 </body>
