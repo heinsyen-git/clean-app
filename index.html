@@ -235,9 +235,14 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
 .ph-card{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center}
 .ph-card .ph-item{width:64px;height:64px}
 .ph-card textarea{padding:8px 10px;font-size:14px;min-height:0;resize:none;line-height:1.35}
+.pn-wrap{display:grid;gap:4px;min-width:0}
+.pn-save{justify-self:start;border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);border-radius:8px;padding:5px 10px;font-weight:700;font-size:12.5px;cursor:pointer}
+.pn-save.ok{background:transparent;border-color:transparent;color:var(--ok);padding:2px 0;cursor:default;white-space:nowrap;text-align:left}
+.touch .pn-save{padding:8px 14px;font-size:14px}
 .ph-del2{border:1px solid var(--line);background:var(--surface);color:var(--bad);border-radius:8px;width:38px;height:38px;font-size:15px;cursor:pointer}
 .ph-note{font-size:13px}
 .ph-add.wide{width:100%;height:46px;flex-direction:row;gap:8px;font-size:14px}
+.ph-gal{position:relative;display:block;text-align:center;font-size:13px;font-weight:600;color:var(--brand);text-decoration:underline;text-underline-offset:3px;padding:4px;cursor:pointer}
 .touch .ph-card{grid-template-columns:76px 1fr auto}
 .touch .ph-card .ph-item{width:76px;height:76px}
 .touch .ph-card textarea{font-size:15px;padding:8px 10px}
@@ -938,10 +943,37 @@ function phaseHTML(k, ph, locked) {
   return `<div class="ph-row v"><span class="ph-lbl">${L}${keys.length ? ` (${keys.length} foto)` : ''}</span><div class="ph-col">
     ${keys.map(key => `<div class="ph-card"><div class="ph-item"><img src="${esc(W.src[key] || '')}" alt="Foto ${L.toLowerCase()}"><span class="ph-st" id="st-${key}" ${stLabel(key) ? '' : 'hidden'}>${stLabel(key)}</span></div>
       ${locked ? `<span class="ph-note">${W.pnotes[key] ? esc(W.pnotes[key]) : '<em class="muted">tanpa catatan</em>'}</span>`
-        : `<textarea rows="2" data-pnote="${key}" maxlength="140" placeholder="Catatan foto, misal: noda di sudut kiri" aria-label="Catatan foto">${esc(W.pnotes[key] || '')}</textarea>`}
+        : `<div class="pn-wrap"><textarea rows="2" data-pnote="${key}" maxlength="140" placeholder="Catatan foto, misal: noda di sudut kiri" aria-label="Catatan foto">${esc(W.pnotes[key] || '')}</textarea>${pnBtn(key)}</div>`}
       ${locked ? '' : `<button type="button" class="ph-del2" data-act="delPh" data-task="${k}" data-key="${key}" aria-label="Hapus foto">✕</button>`}</div>`).join('')}
-    ${locked ? (keys.length ? '' : '<span class="muted" style="font-size:12.5px">tidak ada</span>') : `<label class="ph-add wide"><input type="file" accept="image/*" multiple data-task="${k}" data-ph="${ph}" class="sr">${ICON.cam}<span>Tambah foto ${L.toLowerCase()}</span></label>`}
+    ${locked ? (keys.length ? '' : '<span class="muted" style="font-size:12.5px">tidak ada</span>') : `<label class="ph-add wide"><input type="file" accept="image/*" capture="environment" data-task="${k}" data-ph="${ph}" class="sr">${ICON.cam}<span>${keys.length ? 'Ambil foto ' + L.toLowerCase() + ' lagi' : 'Ambil foto ' + L.toLowerCase()}</span></label>`}
   </div></div>`;
+}
+function pnBtn(key) {
+  const cur = W.pnotes[key] || '', saved = W.pnSaved[key] || '';
+  if (cur === saved) return `<button type="button" class="pn-save ok" id="pns-${key}" disabled ${cur ? '' : 'hidden'}>✓ Tersimpan</button>`;
+  return `<button type="button" class="pn-save" id="pns-${key}" data-act="savePN" data-key="${key}">Simpan catatan</button>`;
+}
+function updPnBtn(key) { const el = document.getElementById('pns-' + key); if (el) el.outerHTML = pnBtn(key); }
+function noteBtnHTML() {
+  const same = (W.note || '') === (W.noteSaved || '');
+  return same ? `<button type="button" class="pn-save ok" id="note-save" disabled ${W.note ? '' : 'hidden'}>✓ Catatan tersimpan</button>`
+    : `<button type="button" class="pn-save" id="note-save" data-act="saveNote">Simpan catatan</button>`;
+}
+function updNoteBtn() { const el = document.getElementById('note-save'); if (el) el.outerHTML = noteBtnHTML(); }
+function savePNote(w, key) {
+  const text = w.pnotes[key] || '';
+  return queueSave(w, async () => {
+    const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'draf')));
+    w.pnSaved[key] = text; if (W === w) { updPnBtn(key); autoMsg(ok ? '✓ Catatan foto tersimpan.' : '⏳ Tersimpan di HP, terkirim saat ada sinyal.', ok ? 'ok' : 'q'); }
+  });
+}
+function saveNote(w) {
+  const text = w.note || '';
+  if (!w.items.some(i => i.before.length || i.after.length) && !text) return;
+  return queueSave(w, async () => {
+    const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'draf')));
+    w.noteSaved = text; if (W === w) { updNoteBtn(); autoMsg(ok ? '✓ Catatan tersimpan.' : '⏳ Tersimpan di HP, terkirim saat ada sinyal.', ok ? 'ok' : 'q'); }
+  });
 }
 function setSt(key) { const el = document.getElementById('st-' + key); if (el) { const t = stLabel(key); el.textContent = t; el.hidden = !t; } }
 function taskRowHTML(k, locked) {
@@ -974,7 +1006,7 @@ async function openWork(areaId) {
   const locked = (r && r.status === 'disetujui') || S.readOnly || S.date !== today();
   if (r && r.media) await loadRepMedia([r]);
   const m = r ? (repMedia(r) || {}) : {};
-  W = { area: a, areaId, rid: `${today()}_${a.id}_${S.me}`, src: {}, state: {}, ages: {}, pnotes: { ...(r?.photoNotes || {}) }, q: Promise.resolve(), note: r?.note || '', locked };
+  W = { area: a, areaId, rid: `${today()}_${a.id}_${S.me}`, src: {}, state: {}, ages: {}, pnotes: { ...(r?.photoNotes || {}) }, pnSaved: { ...(r?.photoNotes || {}) }, q: Promise.resolve(), note: r?.note || '', noteSaved: r?.note || '', locked };
   W.items = (a.items || []).map(t => {
     const old = r ? (r.items || []).find(x => x.t === t) : null;
     if (old && (old.before || old.after) && Array.isArray(old.before || old.after)) {
@@ -994,8 +1026,8 @@ async function openWork(areaId) {
       ${r?.managerNote && r.status !== 'disetujui' ? `<p class="note bad" style="margin-bottom:14px"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
       ${locked ? '' : `<p class="autosave" id="autosave">Setiap foto langsung tersimpan otomatis. Tekan <b>Kirim ke manager</b> jika semua sudah selesai.</p>`}
       ${step(1, 'Foto sebelum dan sesudah setiap tugas', `<p class="task-prog" id="task-prog"></p>${W.items.map((x, k) => `<div id="trow-${k}">${taskRowHTML(k, locked)}</div>`).join('')}`)}
-      ${step(2, 'Catatan', `<textarea id="w-note" name="note" data-autonote="1" ${locked ? 'disabled' : ''} placeholder="Wajib diisi jika ada tugas yang fotonya belum lengkap. Contoh: sabun cuci tangan habis, perlu restok">${esc(W.note)}</textarea>`)}
-      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Tekan <b>Tambah</b> untuk memotret atau memilih beberapa foto sekaligus dari galeri (foto hari ini). Nama tugas, area, jam, dan nama Anda dicap otomatis pada setiap foto.</p>'}
+      ${step(2, 'Catatan', `<textarea id="w-note" name="note" data-autonote="1" ${locked ? 'disabled' : ''} placeholder="Wajib diisi jika ada tugas yang fotonya belum lengkap. Contoh: sabun cuci tangan habis, perlu restok">${esc(W.note)}</textarea>${locked ? '' : `<div style="margin-top:8px">${noteBtnHTML()}</div>`}`)}
+      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Tombol <b>Ambil foto</b> langsung membuka kamera; tekan lagi untuk menambah foto. Nama tugas, area, jam, dan nama Anda dicap otomatis pada setiap foto.</p>'}
     </div>
     <div class="sheet-f"><button class="btn" type="button" data-act="close">Tutup</button>
       ${locked ? '' : `<button class="btn primary" type="submit" id="w-submit">Kirim ke manager</button>`}</div>
@@ -1006,7 +1038,7 @@ function addPhoto(k, ph, f) {
   const w = W; if (!w || w.locked) return;
   if (f.type && !/^image\//.test(f.type)) return toast('File harus berupa foto.', 'bad');
   const age = Math.max(0, Math.round((Date.now() - (f.lastModified || Date.now())) / 1000));
-  if (age > 12 * 3600) return toast('Foto lama tidak diterima. Gunakan foto yang diambil hari ini.', 'bad');
+  if (age > 120) return toast('Foto harus diambil langsung dengan kamera saat ini. Foto lama tidak diterima.', 'bad');
   const arr = w.items[k][ph === 'b' ? 'before' : 'after'], key = newKey(k, ph);
   arr.push(key); w.src[key] = URL.createObjectURL(f); w.state[key] = 'saving'; w.ages[key] = age; refreshTask(k);
   autoMsg('Menyimpan foto…');
@@ -1040,14 +1072,13 @@ function delPhoto(k, key) {
 let noteTimer = null, pnoteTimer = null;
 document.addEventListener('input', e => {
   if (e.target.dataset && e.target.dataset.pnote && W) {
-    const w = W; w.pnotes[e.target.dataset.pnote] = e.target.value.trim(); clearTimeout(pnoteTimer);
-    pnoteTimer = setTimeout(() => queueSave(w, async () => { const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'draf'))); if (W === w) autoMsg(ok ? '✓ Catatan foto tersimpan otomatis.' : '⏳ Tersimpan di HP.', ok ? 'ok' : 'q'); }), 1000);
+    const w = W, key = e.target.dataset.pnote; w.pnotes[key] = e.target.value.trim(); updPnBtn(key); clearTimeout(pnoteTimer);
+    pnoteTimer = setTimeout(() => { if ((w.pnotes[key] || '') !== (w.pnSaved[key] || '')) savePNote(w, key); }, 4000);
     return;
   }
   if (!e.target.dataset || !e.target.dataset.autonote || !W) return;
-  const w = W; w.note = e.target.value.trim(); clearTimeout(noteTimer);
-  noteTimer = setTimeout(() => { if (!w.items.some(i => i.before.length || i.after.length) && !w.note) return;
-    queueSave(w, async () => { const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'draf'))); if (W === w) autoMsg(ok ? '✓ Catatan tersimpan otomatis.' : '⏳ Tersimpan di HP.', ok ? 'ok' : 'q'); }); }, 1200);
+  const w = W; w.note = e.target.value.trim(); updNoteBtn(); clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => { if ((w.note || '') !== (w.noteSaved || '')) saveNote(w); }, 4000);
 });
 document.addEventListener('change', e => {
   const t = e.target;
@@ -1254,6 +1285,8 @@ const ACT = {
     catch (e) { toast(errMsg(e), 'bad'); }
   },
   delPh: d => delPhoto(+d.task, d.key),
+  savePN: d => { if (W) { clearTimeout(pnoteTimer); savePNote(W, d.key); } },
+  saveNote: () => { if (W) { clearTimeout(noteTimer); saveNote(W); } },
   async claimOwner(d, b) {
     if (!isMgr() || ownerU()) return;
     b.disabled = true;
