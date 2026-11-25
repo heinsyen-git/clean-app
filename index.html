@@ -685,7 +685,7 @@ function renderToolbar() {
   } else if (S.tab === 'laporan') {
     tb.innerHTML = dateField + '<div class="grow"></div>' + printBtn;
   } else if (S.tab === 'area') {
-    tb.innerHTML = `<div class="grow"></div><button class="btn primary" data-act="areaForm">${ICON.plus}Tambah area</button>`;
+    tb.innerHTML = `<div class="grow"></div><button class="btn" data-act="areaAutoSort">Urutkan otomatis per lantai</button><button class="btn primary" data-act="areaForm">${ICON.plus}Tambah area</button>`;
   } else if (S.tab === 'pengguna') {
     tb.innerHTML = `<div class="grow"></div><button class="btn primary" data-act="userForm">${ICON.plus}Tambah pengguna</button>`;
   } else tb.innerHTML = '';
@@ -701,7 +701,7 @@ function renderContent() {
 document.addEventListener('focusout', () => setTimeout(() => { if (S.pending) renderContent(); }, 60));
 
 /* ---------- data helpers ---------- */
-const activeAreas = () => S.areas.filter(a => a.active !== false);
+const activeAreas = () => areaGroups().flatMap(g => g.list).filter(a => a.active !== false);
 const areasFor = u => activeAreas().filter(a => !a.assignees?.length || a.assignees.includes(u));
 const repFor = (areaId, u) => S.reports.find(r => r.areaId === areaId && r.username === u);
 const loadingBlock = () => `<div class="loading" style="min-height:30vh"><div><div class="spin"></div>Memuat laporan…</div></div>`;
@@ -835,13 +835,16 @@ const VIEWS = {
   area() {
     if (!S.areas.length) return `<div class="empty"><h3>Belum ada area kerja</h3><p>Tambahkan ruangan satu per satu, atau mulai dari contoh area kantor lalu sesuaikan.</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn primary" data-act="areaForm">${ICON.plus}Tambah area</button><button class="btn" data-act="sampleAreas">Pakai contoh area</button></div></div>`;
-    return `<div class="grid">${S.areas.map(a => `<div class="card">
+    return areaGroups().map(g => `<h2 class="sec-title">${esc(g.label)} <span class="muted" style="font-size:14px;font-weight:500">(${g.list.length} area)</span></h2>
+      <div class="grid">${g.list.map((a, i) => `<div class="card">
       <div class="rep-head"><h3>${esc(a.name)}</h3>${a.active === false ? '<span class="chip idle">Nonaktif</span>' : ''}</div>
       ${a.location ? `<p class="loc">${esc(a.location)}</p>` : ''}
       <ul class="checks" style="font-size:13.5px">${(a.items || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
       <p class="loc"><b>Petugas:</b> ${a.assignees?.length ? esc(a.assignees.map(nameOf).join(', ')) : 'Semua petugas'}</p>
-      <div class="foot"><button class="btn sm" data-act="areaForm" data-area="${a.id}">Ubah</button><button class="btn sm bad" data-act="areaDel" data-area="${a.id}">Hapus</button></div>
-    </div>`).join('')}</div>`;
+      <div class="foot"><button class="btn sm" data-act="areaForm" data-area="${a.id}">Ubah</button>
+        <span style="display:flex;gap:6px"><button class="btn sm" data-act="areaMove" data-area="${a.id}" data-dir="-1" ${i === 0 ? 'disabled' : ''} title="Pindah ke atas" aria-label="Pindah ke atas">↑</button><button class="btn sm" data-act="areaMove" data-area="${a.id}" data-dir="1" ${i === g.list.length - 1 ? 'disabled' : ''} title="Pindah ke bawah" aria-label="Pindah ke bawah">↓</button></span>
+        <button class="btn sm bad" data-act="areaDel" data-area="${a.id}">Hapus</button></div>
+    </div>`).join('')}</div>`).join('') + `<p class="muted" style="font-size:13px;margin-top:16px">Urutan ini juga dipakai di daftar tugas petugas dan laporan cetak. Lantai dibaca dari kolom Lokasi atau nama area (misalnya "Lantai 3"). Gunakan ↑ ↓ untuk mengatur urutan dalam satu lantai.</p>`;
   },
   pengguna() {
     const rows = Object.entries(S.accounts).sort((a, b) => (a[1].role === b[1].role ? a[1].name.localeCompare(b[1].name) : a[1].role === 'manager' ? -1 : 1));
@@ -1194,6 +1197,18 @@ const FORMS = {
 };
 const ownerU = () => S.settings.owner || null;
 const OWNER_MSG = 'Akun Admin utama dilindungi dan hanya bisa diubah oleh pemiliknya sendiri.';
+/* ---------- urutan area per lantai ---------- */
+function floorOf(a) { const m = /lantai\s*(\d+)/i.exec(a.location || '') || /lantai\s*(\d+)/i.exec(a.name || ''); return m ? +m[1] : null; }
+function groupKey(a) { if (a.active === false) return 9999; const f = floorOf(a); return f == null ? 999 : f; }
+function areaGroups() {
+  const map = new Map();
+  S.areas.forEach(a => { const k = groupKey(a); if (!map.has(k)) map.set(k, []); map.get(k).push(a); });
+  return [...map.keys()].sort((x, y) => x - y).map(k => ({ key: k, label: k === 9999 ? 'Nonaktif' : k === 999 ? 'Lainnya (tanpa lantai)' : 'Lantai ' + k, list: map.get(k) }));
+}
+async function writeOrder(list) {
+  const b = S.db.batch(); list.forEach((a, i) => { if (a.order !== (i + 1) * 10) b.update(S.db.doc('areas/' + a.id), { order: (i + 1) * 10 }); });
+  await b.commit();
+}
 const activeManagers = () => Object.values(S.accounts).filter(a => a.role === 'manager' && a.active !== false);
 function busy(f, on) { f.querySelectorAll('button[type=submit]').forEach(b => b.disabled = on); }
 document.addEventListener('submit', e => {
@@ -1285,6 +1300,19 @@ const ACT = {
     catch (e) { toast(errMsg(e), 'bad'); }
   },
   delPh: d => delPhoto(+d.task, d.key),
+  async areaMove(d, b) {
+    const groups = areaGroups(), flat = groups.flatMap(g => g.list), g = groups.find(x => x.list.some(a => a.id === d.area));
+    const i = g.list.findIndex(a => a.id === d.area), j = i + (+d.dir); if (j < 0 || j >= g.list.length) return;
+    const gi = flat.indexOf(g.list[i]), gj = flat.indexOf(g.list[j]); [flat[gi], flat[gj]] = [flat[gj], flat[gi]];
+    b.disabled = true;
+    try { await writeOrder(flat); } catch (e) { toast(errMsg(e), 'bad'); b.disabled = false; }
+  },
+  async areaAutoSort(d, b) {
+    b.disabled = true;
+    try { await writeOrder(areaGroups().flatMap(g => g.list)); toast('Area diurutkan per lantai: Lantai 1, 2, 3, dan seterusnya.'); }
+    catch (e) { toast(errMsg(e), 'bad'); }
+    b.disabled = false;
+  },
   savePN: d => { if (W) { clearTimeout(pnoteTimer); savePNote(W, d.key); } },
   saveNote: () => { if (W) { clearTimeout(noteTimer); saveNote(W); } },
   async claimOwner(d, b) {
@@ -1321,10 +1349,11 @@ document.addEventListener('click', e => {
 });
 
 /* ---------- daily report ---------- */
+function areaRank(id) { const flat = areaGroups().flatMap(g => g.list); const i = flat.findIndex(a => a.id === id); return i < 0 ? 1e6 : i; }
 function reportData() {
   const staff = isMgr() ? S.staffFilter : S.me;
   const reps = S.reports.filter(r => r.status !== 'draf' && (!staff || r.username === staff))
-    .sort((a, b) => a.areaName.localeCompare(b.areaName) || (a.submittedAt || '').localeCompare(b.submittedAt || ''));
+    .sort((a, b) => areaRank(a.areaId) - areaRank(b.areaId) || a.areaName.localeCompare(b.areaName) || (a.submittedAt || '').localeCompare(b.submittedAt || ''));
   const areas = staff ? areasFor(staff) : activeAreas();
   const missing = areas.filter(a => !reps.some(r => r.areaId === a.id));
   return { staff, reps, areas, missing };
