@@ -68,7 +68,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .field{display:grid;gap:6px;margin-bottom:14px}
 .field label,.field .lbl{font-weight:600;font-size:13.5px}
 .field small{color:var(--ink-2);font-size:12.5px}
-input[type=text],input[type=password],input[type=date],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+input[type=text],input[type=password],input[type=date],input[type=month],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 textarea{resize:vertical;min-height:84px}
 input:focus,select:focus,textarea:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 25%,transparent)}
 
@@ -214,6 +214,47 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
 .tph figcaption{font-size:12px;line-height:1.3;margin-top:4px}
 .tph figcaption.undone{color:var(--bad);font-weight:600}
 .lbl-sm{font-weight:700;font-size:13px}
+.task-row2{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--surface)}
+.task-row2.done{border-color:var(--ok);background:var(--ok-bg)}
+.task-row2 .tt{font-weight:700;margin-bottom:4px}
+.ph-row{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:start;margin-top:6px}
+.ph-lbl{font-size:12.5px;font-weight:700;color:var(--ink-2);padding-top:8px}
+.ph-list{display:flex;flex-wrap:wrap;gap:6px}
+.ph-item{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;background:var(--surface-2)}
+.ph-item img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-del{position:absolute;top:2px;right:2px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:12px;line-height:24px;padding:0;cursor:pointer}
+.ph-st{position:absolute;left:3px;bottom:3px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;border-radius:6px;padding:0 5px}
+.ph-add{position:relative;width:64px;height:64px;border:2px dashed var(--brand);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--brand);font-size:11.5px;font-weight:700;cursor:pointer;background:color-mix(in srgb,var(--brand) 8%,var(--surface))}
+.ph-add svg{width:22px;height:22px}
+.touch .ph-item,.touch .ph-add{width:78px;height:78px}
+.touch .ph-row{grid-template-columns:66px 1fr}
+.autosave{font-size:13px;color:var(--ink-2);margin:0 0 12px}
+.autosave.ok{color:var(--ok);font-weight:600}.autosave.q{color:var(--wait);font-weight:600}
+.rep.v2{grid-template-columns:1fr}
+.ph-col{display:grid;gap:8px}
+.ph-card{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center}
+.ph-card .ph-item{width:64px;height:64px}
+.ph-card textarea{padding:8px 10px;font-size:14px;min-height:0;resize:none;line-height:1.35}
+.ph-del2{border:1px solid var(--line);background:var(--surface);color:var(--bad);border-radius:8px;width:38px;height:38px;font-size:15px;cursor:pointer}
+.ph-note{font-size:13px}
+.ph-add.wide{width:100%;height:46px;flex-direction:row;gap:8px;font-size:14px}
+.touch .ph-card{grid-template-columns:76px 1fr auto}
+.touch .ph-card .ph-item{width:76px;height:76px}
+.touch .ph-card textarea{font-size:15px;padding:8px 10px}
+.touch .ph-add.wide{height:52px;font-size:15.5px}
+.ph-row.v{grid-template-columns:1fr;gap:6px}
+.ph-row.v .ph-lbl{padding-top:0}
+.tg2-fig{margin:0;width:110px}
+.tg2-fig .ph{width:110px;height:110px}
+.tg2-fig figcaption{font-size:11.5px;line-height:1.3;margin-top:3px;color:var(--ink);overflow-wrap:anywhere}
+.tg2{display:grid;gap:8px;margin-top:6px}
+.tg2-row{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.tg2-t{font-weight:700;font-size:13.5px;margin-bottom:2px}
+.tg2-t.undone{color:var(--bad)}
+.tg2-ph{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin-top:4px}
+.tg2-ph>span{font-size:12px;color:var(--ink-2);font-weight:600}
+.tg2-list{display:flex;flex-wrap:wrap;gap:6px}
+.tg2-list .ph{width:72px;height:72px;aspect-ratio:auto;border-radius:6px}
 .desk .reps{grid-template-columns:1fr!important}
 @media (max-width:700px){.task-row{grid-template-columns:1fr}.task-row .tact{justify-content:space-between}.task-row label.btn{flex:1}}
 .picks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -419,7 +460,7 @@ const today = () => dstr(new Date());
 const fmtDate = ds => { const [y,m,d] = ds.split('-').map(Number); return new Date(y, m-1, d).toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}); };
 const fmtTime = iso => iso ? new Date(iso).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '–';
 const fmtStamp = d => d.toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
-const STATUS = { menunggu:['Menunggu cek','wait'], disetujui:['Disetujui','ok'], revisi:['Perlu revisi','bad'], belum:['Belum dikerjakan','idle'] };
+const STATUS = { draf:['Belum dikirim','wait'], menunggu:['Menunggu cek','wait'], disetujui:['Disetujui','ok'], revisi:['Perlu revisi','bad'], belum:['Belum dikerjakan','idle'] };
 const chip = st => `<span class="chip ${STATUS[st][1]}">${STATUS[st][0]}</span>`;
 const imgSrc = ref => !ref ? '' : (ref.startsWith('data:') ? ref : '/_blob/' + ref);
 const ROLE = { manager:'Manager', staff:'Petugas kebersihan' };
@@ -664,16 +705,17 @@ const loadingBlock = () => `<div class="loading" style="min-height:30vh"><div><d
 const PHC = {};
 function repMedia(r) {
   if (!r.media) return { before: r.before ? imgSrc(r.before) : null, after: r.after ? imgSrc(r.after) : null };
-  const c = PHC[r.id]; return c && c.ver === r.submittedAt && c.data ? c.data : null;
+  const c = PHC[r.id]; return c && c.ver === (r.savedAt || r.submittedAt) && c.data ? c.data : null;
 }
 async function loadRepMedia(list) {
-  const need = list.filter(r => r.media && !(PHC[r.id] && PHC[r.id].ver === r.submittedAt));
+  const ver = r => r.savedAt || r.submittedAt;
+  const need = list.filter(r => r.media && !(PHC[r.id] && PHC[r.id].ver === ver(r)));
   if (!need.length) return;
-  need.forEach(r => { PHC[r.id] = { ver: r.submittedAt, data: null }; });
+  need.forEach(r => { PHC[r.id] = { ver: ver(r), data: null }; });
   await Promise.all(need.map(async r => {
     const data = {};
     await Promise.all((r.photoKeys || []).map(async k => { try { const snap = await S.db.doc(`rphotos/${r.id}__${k}`).get(); if (snap.exists) data[k] = snap.data().d; } catch (e) {} }));
-    PHC[r.id] = { ver: r.submittedAt, data };
+    PHC[r.id] = { ver: ver(r), data };
   }));
   renderContent();
 }
@@ -689,18 +731,22 @@ function checklist(items) {
 }
 function taskGrid(r) {
   const m = repMedia(r);
+  if (r.v2) return `<div class="tg2">${(r.items || []).map(it => `<div class="tg2-row"><div class="tg2-t ${it.done ? '' : 'undone'}">${it.done ? '✓' : '✗'} ${esc(it.t)}</div>
+    ${['before', 'after'].map(ph => `<div class="tg2-ph"><span>${ph === 'before' ? 'Sebelum' : 'Sesudah'}</span><div class="tg2-list">${(it[ph] || []).length ? it[ph].map(key => `<figure class="tg2-fig">${m && m[key]
+      ? `<button class="ph" data-act="zoom" data-rep="${esc(r.id)}" data-which="${esc(key)}" aria-label="Perbesar foto"><img src="${esc(m[key])}" alt="Foto ${esc(it.t)}" loading="lazy"></button>`
+      : `<div class="ph none"><span>${m ? '–' : '…'}</span></div>`}${(r.photoNotes || {})[key] ? `<figcaption>${esc(r.photoNotes[key])}</figcaption>` : ''}</figure>`).join('') : '<em class="muted" style="font-size:12.5px">tidak ada</em>'}</div></div>`).join('')}</div>`).join('')}</div>`;
   return `<div class="tgrid">${(r.items || []).map((it, k) => { const src = m && m['t' + k];
     return `<figure class="tph">${src ? `<button class="ph" data-act="zoom" data-rep="${esc(r.id)}" data-which="t${k}" aria-label="Perbesar foto ${esc(it.t)}"><img src="${esc(src)}" alt="Foto ${esc(it.t)}" loading="lazy"></button>` : `<div class="ph none"><span>${!m ? 'Memuat…' : 'Tidak ada foto'}</span></div>`}
       <figcaption class="${it.done ? '' : 'undone'}">${it.done ? '✓' : '✗'} ${esc(it.t)}</figcaption></figure>`; }).join('')}</div>`;
 }
 function repCard(r, mgr) {
   const done = (r.items || []).filter(i => i.done).length, total = (r.items || []).length;
-  return `<article class="rep">
-    <div class="rep-photos">${photo(r, 'before')}${photo(r, 'after')}</div>
+  return `<article class="rep ${r.v2 ? 'v2' : ''}">
+    ${r.v2 ? '' : `<div class="rep-photos">${photo(r, 'before')}${photo(r, 'after')}</div>`}
     <div class="rep-body">
       <div class="rep-head"><div><h3>${esc(r.areaName)}</h3>${r.location ? `<p class="meta">${esc(r.location)}</p>` : ''}</div>${chip(r.status)}</div>
-      <p class="meta"><span>${esc(r.staffName)}</span><span>Dikirim ${fmtTime(r.submittedAt)}</span><span>${done} dari ${total} tugas selesai</span></p>
-      ${r.media ? `<div><span class="lbl-sm">Foto bukti per tugas</span>${taskGrid(r)}</div>` : `<details><summary>Rincian tugas</summary>${checklist(r.items)}</details>`}
+      <p class="meta"><span>${esc(r.staffName)}</span><span>${r.status === 'draf' ? 'Disimpan ' + fmtTime(r.savedAt) + ', belum dikirim' : 'Dikirim ' + fmtTime(r.submittedAt)}</span><span>${done} dari ${total} tugas selesai</span></p>
+      ${r.media ? `<div><span class="lbl-sm">Foto bukti per tugas${r.v2 ? ' (sebelum dan sesudah)' : ''}</span>${taskGrid(r)}</div>` : `<details><summary>Rincian tugas</summary>${checklist(r.items)}</details>`}
       ${r.note ? `<p class="note"><b>Catatan petugas:</b> ${esc(r.note)}</p>` : ''}
       ${r.managerNote ? `<p class="note${r.status === 'revisi' ? ' bad' : ''}"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
       ${r.reviewedBy ? `<p class="meta"><span>Diperiksa ${esc(r.reviewedBy)}, ${fmtTime(r.reviewedAt)}</span></p>` : ''}
@@ -717,23 +763,24 @@ const VIEWS = {
     const areas = areasFor(S.me);
     if (!S.repLoaded) return loadingBlock();
     if (!areas.length) return `<div class="empty"><h3>Belum ada area untuk Anda</h3><p>Minta manager menambahkan area kerja dan menugaskan Anda.</p></div>`;
-    const done = areas.filter(a => { const r = repFor(a.id, S.me); return r && r.status !== 'revisi'; }).length;
+    const done = areas.filter(a => { const r = repFor(a.id, S.me); return r && r.status !== 'revisi' && r.status !== 'draf'; }).length;
     const pct = Math.round(done / areas.length * 100);
     const hero = `<section class="hero">
       <div class="hero-num">${done}<span>/${areas.length}</span></div>
       <div class="hero-txt"><h2>${done === areas.length ? 'Semua area sudah dilaporkan' : 'Area sudah dilaporkan hari ini'}</h2><p>${esc(fmtDate(S.date))}</p></div>
       <div class="bucket" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
     </section>`;
-    const order = { revisi:0, belum:1, menunggu:2, disetujui:3 };
+    const order = { revisi:0, draf:1, belum:2, menunggu:3, disetujui:4 };
     const rows = areas.map(a => ({ a, r: repFor(a.id, S.me) })).sort((x, y) => order[x.r ? x.r.status : 'belum'] - order[y.r ? y.r.status : 'belum']);
     const cards = rows.map(({ a, r }) => {
       const st = r ? r.status : 'belum';
       const btn = !r ? `<button class="btn primary" data-act="work" data-area="${a.id}">${ICON.cam}Mulai kerjakan</button>`
         : st === 'revisi' ? `<button class="btn bad" data-act="work" data-area="${a.id}">${ICON.cam}Perbaiki dan foto ulang</button>`
+        : st === 'draf' ? `<button class="btn primary" data-act="work" data-area="${a.id}">${ICON.cam}Lanjutkan dan kirim</button>`
         : st === 'menunggu' ? `<button class="btn" data-act="work" data-area="${a.id}">Lihat atau ubah laporan</button>`
         : `<button class="btn" data-act="work" data-area="${a.id}">Lihat laporan</button>`;
       return `<div class="task">
-        <div class="task-h"><div><h3>${esc(a.name)}</h3><p class="loc">${a.location ? esc(a.location) + ', ' : ''}${(a.items || []).length} tugas${r ? `, dikirim ${fmtTime(r.submittedAt)}` : ''}</p></div>${chip(st)}</div>
+        <div class="task-h"><div><h3>${esc(a.name)}</h3><p class="loc">${a.location ? esc(a.location) + ', ' : ''}${(a.items || []).length} tugas${r && r.status !== 'draf' && r.submittedAt ? `, dikirim ${fmtTime(r.submittedAt)}` : ''}</p></div>${chip(st)}</div>
         ${st === 'revisi' && r.managerNote ? `<p class="note bad"><b>Revisi:</b> ${esc(r.managerNote)}</p>` : ''}
         ${btn}</div>`;
     }).join('');
@@ -760,8 +807,9 @@ const VIEWS = {
   pantau() {
     if (!S.repLoaded) return loadingBlock();
     const f = S.staffFilter;
-    const reps = S.reports.filter(r => !f || r.username === f);
+    const reps = S.reports.filter(r => r.status !== 'draf' && (!f || r.username === f));
     const areas = f ? areasFor(f) : activeAreas();
+    const drafts = new Set(S.reports.filter(r => r.status === 'draf' && (!f || r.username === f)).map(r => r.areaId));
     const missing = areas.filter(a => !reps.some(r => r.areaId === a.id));
     const cnt = s => reps.filter(r => r.status === s).length;
     const order = { menunggu:0, revisi:1, disetujui:2 };
@@ -776,7 +824,7 @@ const VIEWS = {
     if (!S.areas.length && !reps.length) return stats + `<div class="empty"><h3>Mulai dengan menambahkan area kerja</h3><p>Petugas baru bisa mengirim laporan setelah ada area yang harus dibersihkan.</p><button class="btn primary" data-act="tab" data-tab="area">Buka Area kerja</button></div>`;
     const list = reps.length ? `<div class="reps">${reps.map(r => repCard(r, true)).join('')}</div>`
       : `<div class="empty"><h3>Belum ada laporan masuk</h3><p>Laporan petugas untuk ${esc(fmtDate(S.date))} akan muncul di sini secara langsung.</p></div>`;
-    const miss = missing.length ? `<h2 class="sec-title">Belum dikerjakan (${missing.length})</h2><div class="missing">${missing.map(a => `<span>${esc(a.name)}</span>`).join('')}</div>` : '';
+    const miss = missing.length ? `<h2 class="sec-title">Belum dikerjakan (${missing.length})</h2><div class="missing">${missing.map(a => `<span>${esc(a.name)}${drafts.has(a.id) ? ' <em class="muted">(sedang dikerjakan)</em>' : ''}</span>`).join('')}</div>` : '';
     return stats + `<h2 class="sec-title" style="margin-top:0">Laporan petugas</h2>` + list + miss;
   },
   area() {
@@ -821,7 +869,7 @@ const VIEWS = {
     <div class="card" style="max-width:560px;margin-top:14px">
       <h3>Penyimpanan foto</h3>
       <p class="loc">Foto dikompres otomatis (sekitar 100–150 KB per foto) dan disimpan di database Firestore. Setiap foto diberi cap tanggal, jam, dan nama area secara otomatis.</p>
-    </div>`;
+    </div>${archiveCard()}`;
   }
 };
 
@@ -876,24 +924,49 @@ async function storePhoto(file, stamp, max0, limit) {
   return d;
 }
 
-/* ---------- work form (staff) ---------- */
+/* ---------- work form (staff): foto sebelum & sesudah per tugas, tersimpan otomatis ---------- */
 let W = null;
-function slotHTML(which, src, locked) {
-  const L = which === 'before' ? 'sebelum' : 'sesudah';
-  if (locked) return src ? `<div class="shot"><img src="${esc(src)}" alt="Foto ${L}"></div>` : `<p class="muted" style="margin:0">Tanpa foto ${L}</p>`;
-  if (!src) return `<label class="cam"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}<span>Ambil foto ${L}</span><small>${which === 'after' ? 'Dianjurkan: kondisi keseluruhan setelah selesai' : 'Dianjurkan: kondisi sebelum dibersihkan'}</small></label>`;
-  return `<div class="shot"><img src="${esc(src)}" alt="Foto ${L}"><span class="shot-ok">✓ Foto ${L} siap</span></div>
-    <div class="shot-acts"><label class="btn"><input type="file" accept="image/*" capture="environment" data-ph="${which}" class="sr">${ICON.cam}Foto ulang</label></div>`;
+const newKey = (k, ph) => `t${k}${ph}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+async function saveSoon(p) {
+  const r = await Promise.race([p.then(() => 'ok'), new Promise(res => setTimeout(() => res('queued'), 9000))]);
+  if (r === 'queued') p.catch(e => toast('Gagal menyimpan: ' + errMsg(e), 'bad'));
+  return r === 'ok';
 }
-function taskRowHTML(k, t, src, locked) {
-  if (locked) return `<div class="task-row ${src ? 'done' : ''}"><div><div class="tt">${src ? '✓ ' : '✗ '}${esc(t)}</div></div>${src ? `<img class="tthumb" src="${esc(src)}" alt="Foto ${esc(t)}">` : ''}</div>`;
-  return `<div class="task-row ${src ? 'done' : ''}" id="task-${k}"><div><div class="tt">${src ? '✓ ' : ''}${esc(t)}</div><small class="muted">${src ? 'Foto bukti tersimpan' : 'Kerjakan, lalu foto hasilnya'}</small></div>
-    <div class="tact">${src ? `<img class="tthumb" src="${esc(src)}" alt="Foto ${esc(t)}">` : ''}<label class="btn ${src ? '' : 'primary'}"><input type="file" accept="image/*" capture="environment" data-task="${k}" class="sr">${ICON.cam}${src ? 'Ulang' : 'Foto'}</label></div></div>`;
+function stLabel(key) { const st = W && W.state[key]; return st === 'saving' ? 'menyimpan…' : st === 'queued' ? '⏳ antre' : ''; }
+function phaseHTML(k, ph, locked) {
+  const keys = W.items[k][ph === 'b' ? 'before' : 'after'], L = ph === 'b' ? 'Sebelum' : 'Sesudah';
+  return `<div class="ph-row v"><span class="ph-lbl">${L}${keys.length ? ` (${keys.length} foto)` : ''}</span><div class="ph-col">
+    ${keys.map(key => `<div class="ph-card"><div class="ph-item"><img src="${esc(W.src[key] || '')}" alt="Foto ${L.toLowerCase()}"><span class="ph-st" id="st-${key}" ${stLabel(key) ? '' : 'hidden'}>${stLabel(key)}</span></div>
+      ${locked ? `<span class="ph-note">${W.pnotes[key] ? esc(W.pnotes[key]) : '<em class="muted">tanpa catatan</em>'}</span>`
+        : `<textarea rows="2" data-pnote="${key}" maxlength="140" placeholder="Catatan foto, misal: noda di sudut kiri" aria-label="Catatan foto">${esc(W.pnotes[key] || '')}</textarea>`}
+      ${locked ? '' : `<button type="button" class="ph-del2" data-act="delPh" data-task="${k}" data-key="${key}" aria-label="Hapus foto">✕</button>`}</div>`).join('')}
+    ${locked ? (keys.length ? '' : '<span class="muted" style="font-size:12.5px">tidak ada</span>') : `<label class="ph-add wide"><input type="file" accept="image/*" multiple data-task="${k}" data-ph="${ph}" class="sr">${ICON.cam}<span>Tambah foto ${L.toLowerCase()}</span></label>`}
+  </div></div>`;
 }
+function setSt(key) { const el = document.getElementById('st-' + key); if (el) { const t = stLabel(key); el.textContent = t; el.hidden = !t; } }
+function taskRowHTML(k, locked) {
+  const it = W.items[k], done = it.before.length && it.after.length;
+  return `<div class="task-row2 ${done ? 'done' : ''}"><div class="tt">${done ? '✓ ' : ''}${esc(it.t)}</div>${phaseHTML(k, 'b', locked)}${phaseHTML(k, 'a', locked)}</div>`;
+}
+function refreshTask(k) { const el = $('#trow-' + k); if (el && W) { el.innerHTML = taskRowHTML(k, false); taskProg(); } }
 function taskProg() {
-  const n = W.items.length, d = W.items.filter((t, k) => W.src['t' + k]).length;
-  const el = $('#task-prog'); if (el) el.textContent = `${d} dari ${n} tugas sudah difoto`;
-  const sn = $('#sn-items'); if (sn) { sn.classList.toggle('done', n && d === n); sn.textContent = n && d === n ? '✓' : '2'; }
+  if (!W) return; const n = W.items.length, d = W.items.filter(i => i.before.length && i.after.length).length;
+  const el = $('#task-prog'); if (el) el.textContent = `${d} dari ${n} tugas lengkap (ada foto sebelum dan sesudah)`;
+}
+function autoMsg(txt, cls) { const el = $('#autosave'); if (el) { el.textContent = txt; el.className = 'autosave ' + (cls || ''); } }
+function reportDoc(w, status) {
+  const items = w.items.map(i => ({ t: i.t, before: i.before.slice(), after: i.after.slice(), done: !!(i.before.length && i.after.length) }));
+  const old = S.reports.find(r => r.id === w.rid);
+  return { date: w.rid.slice(0, 10), areaId: w.area.id, areaName: w.area.name, location: w.area.location || '', username: S.me, staffName: me().name,
+    items, media: true, v2: true, photoKeys: items.flatMap(i => [...i.before, ...i.after]), before: null, after: null, note: w.note,
+    photoNotes: Object.fromEntries(items.flatMap(i => [...i.before, ...i.after]).filter(k => w.pnotes[k]).map(k => [k, w.pnotes[k]])),
+    photoAges: { ...(old?.photoAges || {}), ...w.ages }, savedAt: new Date().toISOString(),
+    submittedAt: status === 'menunggu' ? new Date().toISOString() : (old?.submittedAt || null), status,
+    managerNote: status === 'menunggu' ? '' : (old?.managerNote || ''), reviewedBy: '', reviewedAt: null };
+}
+function queueSave(w, fn) {
+  w.q = w.q.then(fn).catch(e => toast('Gagal menyimpan: ' + errMsg(e), 'bad'));
+  return w.q;
 }
 async function openWork(areaId) {
   const a = S.areas.find(x => x.id === areaId); if (!a) return;
@@ -901,49 +974,86 @@ async function openWork(areaId) {
   const locked = (r && r.status === 'disetujui') || S.readOnly || S.date !== today();
   if (r && r.media) await loadRepMedia([r]);
   const m = r ? (repMedia(r) || {}) : {};
-  const items = a.items || [];
-  W = { areaId, items, legacy: !!(r && !r.media), src: {}, files: {}, ages: {} };
-  // foto yang sudah ada (laporan revisi): pakai lagi kecuali diganti
-  if (m.before) W.src.before = m.before; if (m.after) W.src.after = m.after;
-  items.forEach((t, k) => { const ok = r ? (r.items || []).find(x => x.t === t) : null; const key = r && r.media && ok ? 't' + (r.items || []).indexOf(ok) : null; if (key && m[key]) W.src['t' + k] = m[key]; });
-  const step = (n, id, title, body, done) => `<div class="step"><div class="step-n${done ? ' done' : ''}" id="${id}">${done ? '✓' : n}</div><div><h3>${title}</h3>${body}</div></div>`;
+  W = { area: a, areaId, rid: `${today()}_${a.id}_${S.me}`, src: {}, state: {}, ages: {}, pnotes: { ...(r?.photoNotes || {}) }, q: Promise.resolve(), note: r?.note || '', locked };
+  W.items = (a.items || []).map(t => {
+    const old = r ? (r.items || []).find(x => x.t === t) : null;
+    if (old && (old.before || old.after) && Array.isArray(old.before || old.after)) {
+      const b = (old.before || []).slice(), af = (old.after || []).slice();
+      [...b, ...af].forEach(key => { if (m[key]) W.src[key] = m[key]; });
+      return { t, before: b, after: af };
+    }
+    const lk = old && r.media ? 't' + (r.items || []).indexOf(old) : null;   // laporan versi lama: satu foto per tugas
+    if (lk && m[lk]) { W.src[lk] = m[lk]; return { t, before: [], after: [lk] }; }
+    return { t, before: [], after: [] };
+  });
+  const step = (n, title, body) => `<div class="step"><div class="step-n">${n}</div><div><h3>${title}</h3>${body}</div></div>`;
   openModal(`${sheetHead(a.name)}
     <form data-form="work"><div class="sheet-b">
-      <p class="muted" style="margin:0 0 14px">${a.location ? esc(a.location) + '. ' : ''}${esc(fmtDate(today()))}</p>
-      ${r ? `<p style="margin:0 0 12px">${chip(r.status)}</p>` : ''}
-      ${r?.status === 'revisi' && r.managerNote ? `<p class="note bad" style="margin-bottom:16px"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
-      ${step(1, 'sn-before', 'Foto sebelum dibersihkan', `<div id="slot-before">${slotHTML('before', W.src.before, locked)}</div>`, !!W.src.before)}
-      ${step(2, 'sn-items', 'Kerjakan dan foto setiap tugas', `<p class="task-prog" id="task-prog"></p>${items.map((t, k) => `<div id="trow-${k}">${taskRowHTML(k, t, W.src['t' + k], locked)}</div>`).join('')}`, false)}
-      ${step(3, 'sn-after', 'Foto sesudah (keseluruhan)', `<div id="slot-after">${slotHTML('after', W.src.after, locked)}</div>`, !!W.src.after)}
-      ${step(4, 'sn-note', 'Catatan', `<textarea id="w-note" name="note" ${locked ? 'disabled' : ''} placeholder="Wajib diisi jika ada tugas yang tidak dikerjakan. Contoh: sabun cuci tangan habis, perlu restok">${esc(r?.note || '')}</textarea>`, false)}
-      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Foto hanya dari kamera. Nama tugas, area, tanggal, jam, dan nama Anda dicap otomatis pada setiap foto.</p>'}
+      <p class="muted" style="margin:0 0 10px">${a.location ? esc(a.location) + '. ' : ''}${esc(fmtDate(today()))}</p>
+      ${r ? `<p style="margin:0 0 10px">${chip(r.status)}</p>` : ''}
+      ${r?.managerNote && r.status !== 'disetujui' ? `<p class="note bad" style="margin-bottom:14px"><b>Catatan manager:</b> ${esc(r.managerNote)}</p>` : ''}
+      ${locked ? '' : `<p class="autosave" id="autosave">Setiap foto langsung tersimpan otomatis. Tekan <b>Kirim ke manager</b> jika semua sudah selesai.</p>`}
+      ${step(1, 'Foto sebelum dan sesudah setiap tugas', `<p class="task-prog" id="task-prog"></p>${W.items.map((x, k) => `<div id="trow-${k}">${taskRowHTML(k, locked)}</div>`).join('')}`)}
+      ${step(2, 'Catatan', `<textarea id="w-note" name="note" data-autonote="1" ${locked ? 'disabled' : ''} placeholder="Wajib diisi jika ada tugas yang fotonya belum lengkap. Contoh: sabun cuci tangan habis, perlu restok">${esc(W.note)}</textarea>`)}
+      ${locked ? '' : '<p class="muted" style="font-size:13px;margin:0">Tekan <b>Tambah</b> untuk memotret atau memilih beberapa foto sekaligus dari galeri (foto hari ini). Nama tugas, area, jam, dan nama Anda dicap otomatis pada setiap foto.</p>'}
     </div>
-    <div class="sheet-f"><button class="btn" type="button" data-act="close">${locked ? 'Tutup' : 'Batal'}</button>
-      ${locked ? '' : `<button class="btn primary" type="submit" id="w-submit">${r ? 'Kirim ulang laporan' : 'Kirim laporan'}</button>`}</div>
+    <div class="sheet-f"><button class="btn" type="button" data-act="close">Tutup</button>
+      ${locked ? '' : `<button class="btn primary" type="submit" id="w-submit">Kirim ke manager</button>`}</div>
     </form>`);
   taskProg();
 }
-function freshOk(f) {
+function addPhoto(k, ph, f) {
+  const w = W; if (!w || w.locked) return;
+  if (f.type && !/^image\//.test(f.type)) return toast('File harus berupa foto.', 'bad');
   const age = Math.max(0, Math.round((Date.now() - (f.lastModified || Date.now())) / 1000));
-  if (age > 120) { toast('Foto harus diambil langsung dengan kamera saat ini. Foto lama tidak diterima.', 'bad'); return null; }
-  return age;
+  if (age > 12 * 3600) return toast('Foto lama tidak diterima. Gunakan foto yang diambil hari ini.', 'bad');
+  const arr = w.items[k][ph === 'b' ? 'before' : 'after'], key = newKey(k, ph);
+  arr.push(key); w.src[key] = URL.createObjectURL(f); w.state[key] = 'saving'; w.ages[key] = age; refreshTask(k);
+  autoMsg('Menyimpan foto…');
+  queueSave(w, async () => {
+    try {
+      const label = (ph === 'b' ? 'SEBELUM: ' : 'SESUDAH: ') + w.items[k].t;
+      const d = await storePhoto(f, `${label}  |  ${w.area.name}  |  ${fmtStamp(new Date(f.lastModified || Date.now()))}  |  ${me().name}`, 900, 110000);
+      if (!arr.includes(key)) return;
+      w.src[key] = d;
+      const b = S.db.batch();
+      b.set(S.db.doc(`rphotos/${w.rid}__${key}`), { d, rid: w.rid, key });
+      b.set(S.db.doc('reports/' + w.rid), reportDoc(w, 'draf'));
+      const ok = await saveSoon(b.commit());
+      w.state[key] = ok ? 'ok' : 'queued';
+      if (W === w) { setSt(key); autoMsg(ok ? '✓ Tersimpan otomatis. Belum dikirim ke manager.' : '⏳ Sinyal lemah: tersimpan di HP dan terkirim otomatis.', ok ? 'ok' : 'q'); }
+    } catch (e) {
+      arr.splice(arr.indexOf(key), 1); delete w.state[key]; if (W === w) refreshTask(k);
+      toast('Foto gagal disimpan: ' + errMsg(e), 'bad');
+    }
+  });
 }
+function delPhoto(k, key) {
+  const w = W; if (!w || w.locked) return;
+  const it = w.items[k]; ['before', 'after'].forEach(ph => { const i = it[ph].indexOf(key); if (i >= 0) it[ph].splice(i, 1); }); delete w.pnotes[key];
+  refreshTask(k); autoMsg('Menghapus foto…');
+  queueSave(w, async () => {
+    const b = S.db.batch(); b.delete(S.db.doc(`rphotos/${w.rid}__${key}`)); b.set(S.db.doc('reports/' + w.rid), reportDoc(w, 'draf'));
+    const ok = await saveSoon(b.commit()); if (W === w) autoMsg(ok ? '✓ Tersimpan otomatis. Belum dikirim ke manager.' : '⏳ Tersimpan di HP.', ok ? 'ok' : 'q');
+  });
+}
+let noteTimer = null, pnoteTimer = null;
+document.addEventListener('input', e => {
+  if (e.target.dataset && e.target.dataset.pnote && W) {
+    const w = W; w.pnotes[e.target.dataset.pnote] = e.target.value.trim(); clearTimeout(pnoteTimer);
+    pnoteTimer = setTimeout(() => queueSave(w, async () => { const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'draf'))); if (W === w) autoMsg(ok ? '✓ Catatan foto tersimpan otomatis.' : '⏳ Tersimpan di HP.', ok ? 'ok' : 'q'); }), 1000);
+    return;
+  }
+  if (!e.target.dataset || !e.target.dataset.autonote || !W) return;
+  const w = W; w.note = e.target.value.trim(); clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => { if (!w.items.some(i => i.before.length || i.after.length) && !w.note) return;
+    queueSave(w, async () => { const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'draf'))); if (W === w) autoMsg(ok ? '✓ Catatan tersimpan otomatis.' : '⏳ Tersimpan di HP.', ok ? 'ok' : 'q'); }); }, 1200);
+});
 document.addEventListener('change', e => {
   const t = e.target;
-  if ((t.dataset.ph || t.dataset.task) && W) {
-    const f = t.files && t.files[0]; if (!f) return;
-    if (f.type && !/^image\//.test(f.type)) { toast('File harus berupa foto.', 'bad'); return; }
-    const age = freshOk(f); if (age == null) return;
-    const url = URL.createObjectURL(f);
-    if (t.dataset.ph) {
-      const which = t.dataset.ph; W.files[which] = f; W.ages[which] = age; W.src[which] = url;
-      $('#slot-' + which).innerHTML = slotHTML(which, url, false);
-      const sn = $('#sn-' + which); if (sn) { sn.classList.add('done'); sn.textContent = '✓'; }
-      if (which === 'before') setTimeout(() => $('#sn-items')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-    } else {
-      const k = +t.dataset.task, key = 't' + k; W.files[key] = f; W.ages[key] = age; W.src[key] = url;
-      $('#trow-' + k).innerHTML = taskRowHTML(k, W.items[k], url, false); taskProg();
-    }
+  if (t.dataset.task != null && t.dataset.ph && t.type === 'file' && W) {
+    const files = [...(t.files || [])]; t.value = '';
+    files.forEach(f => addPhoto(+t.dataset.task, t.dataset.ph, f));
   }
   if (t.dataset.change === 'date') { setDate(t.value || today()); t.blur(); }
   if (t.dataset.change === 'staff') { S.staffFilter = t.value; t.blur(); renderContent(); }
@@ -972,38 +1082,16 @@ const FORMS = {
     S.me = u; ss('kbr-user', u); S.tab = null; route();
   },
   async work(f) {
-    if (!W) return;
-    const a = S.areas.find(x => x.id === W.areaId); if (!a) return;
-    const fd = new FormData(f), note = (fd.get('note') || '').trim();
-    const items = W.items.map((t, k) => ({ t, done: !!W.src['t' + k] }));
-    const nDone = items.filter(i => i.done).length;
-    if (!nDone) return toast('Foto minimal satu tugas yang sudah dikerjakan.', 'bad');
-    if (nDone < items.length && !note) return toast('Ada tugas yang belum difoto. Tulis alasannya di kolom Catatan.', 'bad');
-    const btn = $('#w-submit'); btn.disabled = true; btn.textContent = 'Memproses foto…';
-    try {
-      const date = today(), rid = `${date}_${a.id}_${S.me}`, now = new Date();
-      const base = `${a.name}  |  ${fmtStamp(now)}  |  ${me().name}`;
-      const b = S.db.batch(), keys = [];
-      const put = (key, d) => { b.set(S.db.doc(`rphotos/${rid}__${key}`), { d, rid, key }); };
-      for (const key of ['before', 'after', ...items.map((x, k) => 't' + k)]) {
-        if (!W.src[key]) continue;
-        keys.push(key);
-        const file = W.files[key];
-        if (file) {
-          const label = key === 'before' ? 'SEBELUM' : key === 'after' ? 'SESUDAH' : 'TUGAS: ' + W.items[+key.slice(1)];
-          btn.textContent = `Memproses foto ${keys.length}…`;
-          put(key, await storePhoto(file, `${label}  |  ${base}`, key.startsWith('t') ? 900 : 1100, key.startsWith('t') ? 110000 : 150000));
-        } else if (W.src[key].startsWith('data:')) put(key, W.src[key]);
-      }
-      btn.textContent = 'Menyimpan laporan…';
-      b.set(S.db.doc('reports/' + rid), {
-        date, areaId: a.id, areaName: a.name, location: a.location || '', username: S.me, staffName: me().name,
-        items, media: true, photoKeys: keys, before: null, after: null, note,
-        photoAges: W.ages, submittedAt: now.toISOString(), status: 'menunggu', managerNote: '', reviewedBy: '', reviewedAt: null
-      });
-      await b.commit();
-      closeModal(); toast('Laporan terkirim ke manager.');
-    } catch (e) { toast(errMsg(e), 'bad'); btn.disabled = false; btn.textContent = 'Kirim laporan'; }
+    const w = W; if (!w) return;
+    w.note = ($('#w-note')?.value || '').trim();
+    const btn = $('#w-submit'); btn.disabled = true; btn.textContent = 'Menunggu foto tersimpan…';
+    await w.q;
+    const n = w.items.length, done = w.items.filter(i => i.before.length && i.after.length).length;
+    if (!done) { btn.disabled = false; btn.textContent = 'Kirim ke manager'; return toast('Lengkapi foto sebelum dan sesudah minimal untuk satu tugas.', 'bad'); }
+    if (done < n && !w.note) { btn.disabled = false; btn.textContent = 'Kirim ke manager'; return toast('Ada tugas yang fotonya belum lengkap. Tulis alasannya di kolom Catatan.', 'bad'); }
+    btn.textContent = 'Mengirim…';
+    const ok = await saveSoon(S.db.doc('reports/' + w.rid).set(reportDoc(w, 'menunggu')));
+    closeModal(); toast(ok ? 'Laporan terkirim ke manager.' : 'Sinyal lemah: laporan terkirim otomatis saat ada sinyal.');
   },
   async revise(f) {
     const v = Object.fromEntries(new FormData(f));
@@ -1105,8 +1193,10 @@ const ACT = {
   zoom: d => {
     const r = S.reports.find(x => x.id === d.rep); if (!r) return;
     const src = (repMedia(r) || {})[d.which]; if (!src) return;
-    const label = d.which === 'before' ? 'foto sebelum' : d.which === 'after' ? 'foto sesudah' : 'tugas: ' + ((r.items || [])[+d.which.slice(1)]?.t || '');
-    openModal(`${sheetHead(`${r.areaName}, ${label}`)}<div class="sheet-b zoom"><img src="${esc(src)}" alt="Foto ${esc(r.areaName)}"><p class="muted">${esc(r.staffName)}, ${esc(fmtDate(r.date))} pukul ${fmtTime(r.submittedAt)}</p></div>`, true);
+    const mt = /^t(\d+)([ba])?/.exec(d.which || ''); const it = mt ? (r.items || [])[+mt[1]] : null;
+    const label = d.which === 'before' ? 'foto sebelum' : d.which === 'after' ? 'foto sesudah' : (mt && mt[2] ? (mt[2] === 'b' ? 'sebelum: ' : 'sesudah: ') : 'tugas: ') + (it ? it.t : '');
+    const pn = (r.photoNotes || {})[d.which];
+    openModal(`${sheetHead(`${r.areaName}, ${label}`)}<div class="sheet-b zoom"><img src="${esc(src)}" alt="Foto ${esc(r.areaName)}">${pn ? `<p class="note" style="margin-top:10px"><b>Catatan foto:</b> ${esc(pn)}</p>` : ''}<p class="muted">${esc(r.staffName)}, ${esc(fmtDate(r.date))} pukul ${fmtTime(r.submittedAt)}</p></div>`, true);
   },
   async approve(d) {
     try { await S.db.doc('reports/' + d.rep).update({ status: 'disetujui', reviewedBy: me().name, reviewedAt: new Date().toISOString() }); toast('Laporan disetujui.'); }
@@ -1163,6 +1253,7 @@ const ACT = {
     try { await S.db.doc('accounts/' + d.user).update({ active: a.active === false }); toast(a.active === false ? 'Akun diaktifkan.' : 'Akun dinonaktifkan.'); }
     catch (e) { toast(errMsg(e), 'bad'); }
   },
+  delPh: d => delPhoto(+d.task, d.key),
   async claimOwner(d, b) {
     if (!isMgr() || ownerU()) return;
     b.disabled = true;
@@ -1199,7 +1290,7 @@ document.addEventListener('click', e => {
 /* ---------- daily report ---------- */
 function reportData() {
   const staff = isMgr() ? S.staffFilter : S.me;
-  const reps = S.reports.filter(r => !staff || r.username === staff)
+  const reps = S.reports.filter(r => r.status !== 'draf' && (!staff || r.username === staff))
     .sort((a, b) => a.areaName.localeCompare(b.areaName) || (a.submittedAt || '').localeCompare(b.submittedAt || ''));
   const areas = staff ? areasFor(staff) : activeAreas();
   const missing = areas.filter(a => !reps.some(r => r.areaId === a.id));
@@ -1234,7 +1325,9 @@ function reportHTML(srcMap) {
     ${missing.length ? `<h2>Area belum dikerjakan</h2><ul class="miss">${missing.map(a => `<li>${esc(a.name)}${a.location ? ' (' + esc(a.location) + ')' : ''}</li>`).join('')}</ul>` : ''}
     ${reps.length ? `<h2>Bukti foto</h2>${reps.map(r => { const m = repMedia(r) || {}; const cell = (img, cap, x) => `<div class="rcell"><div class="rimg">${img ? `<img src="${esc(src(img))}" alt="">` : 'Tanpa foto'}</div><span class="${x ? 'x' : ''}">${cap}</span></div>`;
       return `<figure class="rfig"><figcaption><b>${esc(r.areaName)}</b>, ${esc(r.staffName)}, ${fmtTime(r.submittedAt)}</figcaption><div class="rgrid">
-        ${cell(m.before, 'Sebelum')}${cell(m.after, 'Sesudah')}${r.media ? (r.items || []).map((it, k) => cell(m['t' + k], (it.done ? '✓ ' : '✗ ') + esc(it.t), !it.done)).join('') : ''}</div></figure>`; }).join('')}` : ''}
+        ${r.v2 ? (r.items || []).flatMap(it => { const ks = [...(it.before || []).map(k => [k, 'Sebelum']), ...(it.after || []).map(k => [k, 'Sesudah'])];
+            return ks.length ? ks.map(([k, l]) => cell(m[k], `${it.done ? '✓' : '✗'} ${l}: ${esc(it.t)}${(r.photoNotes || {})[k] ? `<br><i>${esc(r.photoNotes[k])}</i>` : ''}`, !it.done)) : [cell(null, '✗ ' + esc(it.t), true)]; }).join('')
+          : cell(m.before, 'Sebelum') + cell(m.after, 'Sesudah') + (r.media ? (r.items || []).map((it, k) => cell(m['t' + k], (it.done ? '✓ ' : '✗ ') + esc(it.t), !it.done)).join('') : '')}</div></figure>`; }).join('')}` : ''}
     <div class="rpt-sign">
       <div>Petugas kebersihan<div class="ln">${staff ? esc(nameOf(staff)) : '(..............................)'}</div></div>
       <div>Diperiksa oleh<div class="ln">${reviewer ? esc(reviewer) : '(..............................)'}</div></div>
@@ -1281,6 +1374,179 @@ async function downloadReport(btn) {
   btn.disabled = false; btn.innerHTML = old;
 }
 
+
+/* ---------- Arsip & backup bulanan ---------- */
+const ARCH = { name: 'kebersihan', label: 'Kebersihan Kantor', what: 'laporan kebersihan', main: 'reports', photos: 'rphotos', mark: false,
+  photoIds: r => r.media ? (r.photoKeys || []).map(k => `${r.id}__${k}`) : [],
+  title: d => `${d.date}, ${d.areaName}`,
+  sub: d => `Petugas: ${d.staffName}. Status: ${d.status}. Tugas selesai: ${(d.items || []).filter(i => i.done).length}/${(d.items || []).length}. Catatan: ${d.note || '-'}.`,
+  save: (n, blob) => S.dl.save({ filename: n, data: blob }) };
+let ARC_MONTH = (() => { const d = new Date(); d.setDate(0); return dstr(d).slice(0, 7); })();
+const ARC_DONE = {};
+function loadJSZip() {
+  return window.JSZip ? Promise.resolve(window.JSZip) : new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    sc.onload = () => res(window.JSZip); sc.onerror = () => rej(new Error('Library ZIP gagal dimuat. Periksa koneksi internet.')); document.head.appendChild(sc);
+  });
+}
+function archiveCard() {
+  const d = ARC_DONE[ARC_MONTH];
+  return `<div class="card" style="max-width:560px;margin-top:14px">
+    <h3>Arsip &amp; backup bulanan</h3>
+    <p class="loc">Unduh semua data dan foto satu bulan menjadi satu file ZIP. Isinya: <b>laporan.html</b> (bisa dibuka di browser) dan <b>data.json</b> beserta folder foto (untuk dipulihkan). Simpan file itu di NAS atau Google Drive, lalu data bulan tersebut boleh dihapus dari database untuk menghemat kuota.</p>
+    <div class="field" style="max-width:220px"><label for="arc-month">Bulan</label><input id="arc-month" type="month" data-arc="month" value="${ARC_MONTH}" max="${today().slice(0, 7)}"></div>
+    ${d ? `<p class="note" style="margin:0 0 12px">✓ Backup bulan ${ARC_MONTH} (${d.n} data) sudah diunduh di sesi ini.</p>` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" data-act="arcBackup">${ICON.dl}Unduh backup</button>
+      <button class="btn bad" data-act="arcDeleteAsk">Hapus data bulan ini…</button>
+    </div>
+    <p class="loc" style="margin:16px 0 6px"><b>Pulihkan dari file backup</b>: data yang masih ada di database tidak akan ditimpa.</p>
+    <label class="btn" style="position:relative"><input type="file" accept=".zip,application/zip" data-arc="restore" class="sr">Pilih file backup (.zip)</label>
+  </div>`;
+}
+const arcRange = m => [m + '-01', m + '-31'];
+async function arcFetch(m) {
+  const [a, b] = arcRange(m);
+  const snap = await S.db.collection(ARCH.main).where('date', '>=', a).where('date', '<=', b).get();
+  return snap.docs.map(d => ({ id: d.id, data: d.data() }));
+}
+async function arcPool(items, n, fn) { let i = 0; await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => { while (i < items.length) { const k = i++; await fn(items[k], k); } })); }
+function arcBox(title, msg) {
+  if (!$('#arc-msg')) openModal(`${sheetHead(title)}<div class="sheet-b"><p id="arc-msg" style="margin-top:0"></p><div class="bucket" style="margin:0"><i id="arc-bar" style="width:0%"></i></div><p class="muted" style="font-size:13px">Jangan tutup halaman ini sampai selesai.</p></div>`);
+  if (msg != null) $('#arc-msg').textContent = msg;
+}
+const arcBar = p => { const b = $('#arc-bar'); if (b) b.style.width = Math.min(100, Math.round(p * 100)) + '%'; };
+function arcPack(v, files, base) {
+  if (v && typeof v.toDate === 'function') return { __ts: v.toDate().toISOString() };
+  if (typeof v === 'string' && v.startsWith('data:image')) { const n = `foto/${base}_${Object.keys(files).length + 1}.jpg`; files[n] = v; return { __file: n }; }
+  if (Array.isArray(v)) return v.map(x => arcPack(x, files, base));
+  if (v && typeof v === 'object') { const o = {}; for (const k in v) o[k] = arcPack(v[k], files, base); return o; }
+  return v;
+}
+function arcUnpack(v, imgs) {
+  if (Array.isArray(v)) return v.map(x => arcUnpack(x, imgs));
+  if (v && typeof v === 'object') {
+    if (v.__ts) return firebase.firestore.Timestamp ? firebase.firestore.Timestamp.fromDate(new Date(v.__ts)) : v.__ts;
+    if (v.__file) return imgs[v.__file] || null;
+    const o = {}; for (const k in v) o[k] = arcUnpack(v[k], imgs); return o;
+  }
+  return v;
+}
+function arcFiles(v, acc) { acc = acc || []; if (v && typeof v === 'object') { if (v.__file) acc.push(v.__file); else for (const k in v) arcFiles(v[k], acc); } return acc; }
+function arcHTML(out, mains) {
+  const rows = mains.slice().sort((a, b) => (a.data.date || '').localeCompare(b.data.date || '')).map(x => {
+    const imgs = [...arcFiles(out.docs[x.id]), ...ARCH.photoIds({ id: x.id, ...x.data }).flatMap(pid => arcFiles(out.photos[pid]))];
+    return `<section><h3>${esc(ARCH.title(x.data))}</h3><p>${esc(ARCH.sub(x.data))}</p><div class="g">${imgs.map(f => `<a href="${f}" target="_blank"><img src="${f}" loading="lazy" alt=""></a>`).join('')}</div></section>`;
+  }).join('');
+  return `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Arsip ${esc(ARCH.label)} ${out.month}</title>
+<style>body{font:14px/1.5 Arial,sans-serif;max-width:1000px;margin:24px auto;padding:0 16px;color:#1a1a1a}h1{margin:0}section{border:1px solid #ccc;border-radius:8px;padding:10px 12px;margin:12px 0;break-inside:avoid}h3{margin:0 0 4px}p{margin:0 0 8px;color:#444}.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}.g img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;background:#eee}</style></head>
+<body><h1>Arsip ${esc(ARCH.label)}: ${out.month}</h1><p>${esc(S.settings.officeName || '')}. ${mains.length} data. Diekspor ${esc(new Date(out.exportedAt).toLocaleString('id-ID'))} oleh ${esc(out.exportedByName || out.exportedBy)}.</p>${rows}</body></html>`;
+}
+async function arcBackup() {
+  const m = ARC_MONTH; if (!/^\d{4}-\d{2}$/.test(m)) return toast('Pilih bulan terlebih dulu.', 'bad');
+  arcBox('Backup ' + m, 'Menyiapkan…');
+  try {
+    const JSZip = await loadJSZip();
+    $('#arc-msg').textContent = 'Mengambil data…';
+    const mains = await arcFetch(m);
+    if (!mains.length) { closeModal(); return toast(`Tidak ada data pada bulan ${m}.`, 'bad'); }
+    const ids = mains.flatMap(x => ARCH.photoIds({ id: x.id, ...x.data }));
+    const photos = {}; let n = 0;
+    await arcPool(ids, 6, async id => {
+      try { const sn = await S.db.doc(ARCH.photos + '/' + id).get(); if (sn.exists) photos[id] = sn.data(); } catch (e) {}
+      n++; arcBar(n / Math.max(1, ids.length) * .7); const el = $('#arc-msg'); if (el) el.textContent = `Mengambil foto ${n} dari ${ids.length}…`;
+    });
+    const files = {}, out = { app: ARCH.name, version: 1, month: m, exportedAt: new Date().toISOString(), exportedBy: S.me, exportedByName: me().name, main: ARCH.main, photosCol: ARCH.photos, docs: {}, photos: {} };
+    mains.forEach(x => { out.docs[x.id] = arcPack(x.data, files, x.id); });
+    for (const id in photos) out.photos[id] = arcPack(photos[id], files, id);
+    const zip = new JSZip();
+    zip.file('data.json', JSON.stringify(out));
+    zip.file('laporan.html', arcHTML(out, mains));
+    for (const f in files) zip.file(f, files[f].split(',')[1], { base64: true });
+    $('#arc-msg').textContent = 'Menyusun file ZIP…';
+    const blob = await zip.generateAsync({ type: 'blob' }, meta => arcBar(.7 + meta.percent / 333));
+    await ARCH.save(`backup-${ARCH.name}-${m}.zip`, blob);
+    ARC_DONE[m] = { n: mains.length };
+    closeModal(); renderContent();
+    toast(`Backup ${mains.length} data bulan ${m} (${(blob.size / 1048576).toFixed(1)} MB) diunduh. Simpan di NAS atau Google Drive.`);
+  } catch (e) { closeModal(); toast(errMsg(e), 'bad'); }
+}
+function arcDeleteAsk() {
+  const m = ARC_MONTH; if (!/^\d{4}-\d{2}$/.test(m)) return toast('Pilih bulan terlebih dulu.', 'bad');
+  if (m >= today().slice(0, 7)) return toast('Data bulan berjalan tidak bisa dihapus. Pilih bulan yang sudah lewat.', 'bad');
+  const done = ARC_DONE[m];
+  openModal(`${sheetHead('Hapus data bulan ' + m + '?')}<form data-form="arcDel"><div class="sheet-b">
+    <p style="margin-top:0">Semua ${esc(ARCH.what)} beserta fotonya pada bulan <b>${m}</b> akan <b>dihapus permanen</b> dari database. Data yang sudah dihapus hanya bisa dikembalikan dari file backup.</p>
+    ${done ? `<p class="note">✓ Backup bulan ini (${done.n} data) sudah diunduh di sesi ini.</p>` : `<label class="checkrow"><input type="checkbox" name="have"><span>Saya sudah menyimpan file backup bulan ${m} di tempat yang aman.</span></label>`}
+    <div class="field" style="margin-top:12px"><label for="arc-confirm">Ketik <b>HAPUS</b> untuk konfirmasi</label><input id="arc-confirm" type="text" name="confirm" autocomplete="off" autocapitalize="characters"></div>
+  </div><div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn bad" type="submit">Hapus permanen</button></div></form>`);
+}
+async function arcDelete(f) {
+  const m = ARC_MONTH, fd = new FormData(f);
+  if (!ARC_DONE[m] && fd.get('have') !== 'on') return toast('Unduh atau pastikan backup bulan ini sudah tersimpan.', 'bad');
+  if ((fd.get('confirm') || '').trim().toUpperCase() !== 'HAPUS') return toast('Ketik HAPUS untuk konfirmasi.', 'bad');
+  closeModal(); arcBox('Menghapus data ' + m, 'Mengambil daftar data…');
+  try {
+    const mains = await arcFetch(m);
+    const refs = [];
+    mains.forEach(x => { ARCH.photoIds({ id: x.id, ...x.data }).forEach(pid => refs.push(S.db.doc(ARCH.photos + '/' + pid))); refs.push(S.db.doc(ARCH.main + '/' + x.id)); });
+    for (let i = 0; i < refs.length; i += 400) {
+      const b = S.db.batch(); refs.slice(i, i + 400).forEach(r => b.delete(r)); await b.commit();
+      arcBar((i + 400) / refs.length); $('#arc-msg').textContent = `Menghapus… ${Math.min(i + 400, refs.length)} dari ${refs.length}`;
+    }
+    closeModal(); toast(`${mains.length} data bulan ${m} dihapus dari database.`);
+  } catch (e) { closeModal(); toast(errMsg(e), 'bad'); }
+}
+async function arcRestore(file) {
+  try {
+    const JSZip = await loadJSZip();
+    const zip = await JSZip.loadAsync(file);
+    const dj = zip.file('data.json'); if (!dj) return toast('File ini bukan backup dari aplikasi ini.', 'bad');
+    const out = JSON.parse(await dj.async('string'));
+    if (out.app !== ARCH.name) return toast(`File ini backup aplikasi lain (${out.app}).`, 'bad');
+    const ids = Object.keys(out.docs);
+    openModal(`${sheetHead('Pulihkan backup ' + out.month + '?')}<div class="sheet-b"><p style="margin-top:0">File berisi <b>${ids.length}</b> data bulan <b>${esc(out.month)}</b>, diekspor ${esc(new Date(out.exportedAt).toLocaleString('id-ID'))}. Data yang masih ada di database dilewati, tidak ditimpa.</p></div>
+      <div class="sheet-f"><button class="btn" type="button" data-act="close">Batal</button><button class="btn primary" type="button" data-act="arcRestoreGo">Pulihkan</button></div>`);
+    ARC_PENDING = { zip, out };
+  } catch (e) { toast('File backup tidak bisa dibaca: ' + (e.message || e), 'bad'); }
+}
+let ARC_PENDING = null;
+async function arcRestoreGo() {
+  const P = ARC_PENDING; if (!P) return; ARC_PENDING = null;
+  closeModal(); arcBox('Memulihkan data ' + P.out.month, 'Memulai…');
+  const ids = Object.keys(P.out.docs); let done = 0, skip = 0;
+  const img = async n => { const zf = P.zip.file(n); return zf ? 'data:image/jpeg;base64,' + await zf.async('base64') : null; };
+  try {
+    let b = S.db.batch(), ops = 0, bytes = 0;
+    for (const id of ids) {
+      const ref = S.db.doc(ARCH.main + '/' + id);
+      const ex = await ref.get().catch(() => null);
+      if (ex && ex.exists) { skip++; continue; }
+      const packed = P.out.docs[id], imgs = {};
+      for (const n of arcFiles(packed)) imgs[n] = await img(n);
+      const data = arcUnpack(packed, imgs); if (ARCH.mark) data.restored = true;
+      for (const pid of ARCH.photoIds({ id, ...data })) {
+        const pp = P.out.photos[pid]; if (!pp) continue;
+        const pi = {}; for (const n of arcFiles(pp)) { pi[n] = await img(n); bytes += (pi[n] || '').length; }
+        b.set(S.db.doc(ARCH.photos + '/' + pid), arcUnpack(pp, pi)); ops++;
+      }
+      b.set(ref, data); ops++; bytes += JSON.stringify(packed).length; done++;
+      if (ops >= 300 || bytes > 6e6) { await b.commit(); b = S.db.batch(); ops = 0; bytes = 0; }
+      arcBar((done + skip) / ids.length); const el = $('#arc-msg'); if (el) el.textContent = `Memulihkan ${done + skip} dari ${ids.length}…`;
+    }
+    if (ops) await b.commit();
+    closeModal(); toast(`${done} data dipulihkan${skip ? `, ${skip} dilewati karena masih ada` : ''}.`);
+  } catch (e) { closeModal(); toast('Pemulihan berhenti: ' + errMsg(e), 'bad'); }
+}
+ACT.arcBackup = () => arcBackup();
+ACT.arcDeleteAsk = () => arcDeleteAsk();
+ACT.arcRestoreGo = () => arcRestoreGo();
+FORMS.arcDel = f => arcDelete(f);
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.dataset || !t.dataset.arc) return;
+  if (t.dataset.arc === 'month') { ARC_MONTH = t.value; t.blur(); renderContent(); }
+  if (t.dataset.arc === 'restore') { const f = t.files && t.files[0]; t.value = ''; if (f) arcRestore(f); }
+});
 
 /* ---------- tombol Kembali (Back) di HP ---------- */
 (function () {

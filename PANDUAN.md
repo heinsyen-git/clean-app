@@ -106,3 +106,15 @@ Untuk pemakaian internal kantor, langkah 5 (pasang lewat Chrome) sudah cukup dan
 - Kuota baca dan tulis harian (50.000 baca, 20.000 tulis) jauh di atas kebutuhan 2–3 petugas.
 
 **Tentang keamanan.** Login username dan password di aplikasi ini memisahkan peran manager dan petugas, tetapi database Firestore-nya dapat diakses siapa saja yang mengetahui konfigurasi di `config.js`. Ini wajar untuk laporan kebersihan, tetapi **jangan menyimpan data rahasia** di aplikasi ini, dan jangan sebarkan link aplikasi di luar kantor.
+
+---
+
+# Arsip & backup bulanan
+
+Menu **Pengaturan** (manager), bagian **Arsip & backup bulanan**:
+1. Pilih **Bulan**, lalu tekan **Unduh backup**. Anda akan mendapat file `backup-kebersihan-YYYY-MM.zip` berisi `laporan.html` (dibuka di browser setelah ZIP diekstrak) serta `data.json` dan folder `foto/` untuk pemulihan.
+2. Simpan file ZIP di **NAS kantor** dan/atau **Google Drive**.
+3. Tekan **Hapus data bulan ini…**, ketik **HAPUS**, lalu konfirmasi. Bulan yang sedang berjalan tidak bisa dihapus.
+4. Untuk mengembalikan data: **Pilih file backup (.zip)**, lalu **Pulihkan**.
+
+Lakukan dari **komputer**, karena file satu bulan bisa berukuran ratusan MB.
